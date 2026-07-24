@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silsilah Keturunan - Family Tree</title>
+  
+  <!-- D3.js Library for Tree Visuals -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { margin: 0; padding: 20px; background-color: #f8fafc; color: #1e293b; }
+    h1 { text-align: center; color: #0f172a; margin-bottom: 5px; }
+    p.subtitle { text-align: center; color: #64748b; margin-top: 0; margin-bottom: 25px; }
+    
+    .container { display: flex; flex-direction: column; gap: 20px; max-width: 1200px; margin: 0 auto; }
+    
+    /* Tree Container Styling */
+    #tree-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+    #tree-container { width: 100%; height: 500px; }
+    
+    /* D3 Tree Node Styling */
+    .node circle { fill: #2563eb; stroke: #1d4ed8; stroke-width: 2px; }
+    .node text { font-size: 13px; font-weight: 600; fill: #1e293b; }
+    .node .details { font-size: 11px; fill: #64748b; }
+    .link { fill: none; stroke: #cbd5e1; stroke-width: 2px; }
+
+    /* Form Container Styling */
+    #form-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 25px;
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px; }
+    input, select, textarea {
+      width: 100%; padding: 10px; border: 1px solid #cbd5e1;
+      border-radius: 6px; font-size: 14px;
+    }
+    button {
+      width: 100%; padding: 12px; background-color: #2563eb;
+      color: white; border: none; border-radius: 6px;
+      font-weight: 600; cursor: pointer; font-size: 15px;
+    }
+    button:hover { background-color: #1d4ed8; }
+    #status-msg { margin-top: 10px; text-align: center; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <h1>Silsilah Keturunan</h1>
+  <p class="subtitle">Ki Gusti Ngurah Panji Sakti</p>
+
+  <div class="container">
+    
+    <!-- Visual Tree Section -->
+    <div id="tree-card">
+      <div id="tree-container"></div>
+    </div>
+
+    <!-- Relative Submission Form -->
+    <div id="form-card">
+      <h3>Add Family Member</h3>
+      <form id="family-form">
+        <div class="form-group">
+          <label for="full_name">Full Name & Title *</label>
+          <input type="text" id="full_name" required placeholder="e.g. Ki Gusti Alit Oka">
+        </div>
+
+        <div class="form-group">
+          <label for="parent_id">Select Parent *</label>
+          <select id="parent_id" required>
+            <option value="">-- Loading parents... --</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="spouse_name">Spouse Name (Optional)</label>
+          <input type="text" id="spouse_name" placeholder="e.g. Ni Gusti Ayu">
+        </div>
+
+        <div class="form-group">
+          <label for="generation">Generation (Optional)</label>
+          <input type="text" id="generation" placeholder="e.g. II, III, IV">
+        </div>
+
+        <div class="form-group">
+          <label for="notes">Historical Notes / Biography</label>
+          <textarea id="notes" rows="3" placeholder="Additional historical context or biographical details..."></textarea>
+        </div>
+
+        <button type="submit" id="submit-btn">Submit Member for Review</button>
+        <p id="status-msg"></p>
+      </form>
+    </div>
+
+  </div>
+
+  <script>
+    // ⚠️ REPLACE THIS WITH YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxsWbmOY43vWKhJjujcMbE1Bpx-n2KWAWTWxl7Z8oXJjX1nXAfHYSgZ2wK4Cdj59cTB/exec";
+
+    let rawMembersData = [];
+
+    // 1. Fetch Data from Google Sheets API
+    async function loadFamilyData() {
+      try {
+        const response = await fetch(GOOGLE_SCRIPT_URL);
+        rawMembersData = await response.json();
+
+        populateParentDropdown(rawMembersData);
+        
+        const hierarchyData = buildHierarchy(rawMembersData);
+        if (hierarchyData) {
+          renderD3Tree(hierarchyData);
+        }
+      } catch (err) {
+        console.error("Failed to load family data:", err);
+      }
+    }
+
+    // 2. Populate Dropdown Options
+    function populateParentDropdown(members) {
+      const select = document.getElementById("parent_id");
+      select.innerHTML = '<option value="">-- Select Parent --</option>';
+      members.forEach(member => {
+        const opt = document.createElement("option");
+        opt.value = member.id;
+        opt.textContent = `${member.full_name} (Gen ${member.generation || '-'})`;
+        select.appendChild(opt);
+      });
+    }
+
+    // 3. Convert Flat Data into Tree Graph Structure
+    function buildHierarchy(data) {
+      const map = {};
+      let root = null;
+
+      data.forEach(item => {
+        map[item.id] = { ...item, children: [] };
+      });
+
+      data.forEach(item => {
+        if (item.parent_id && map[item.parent_id]) {
+          map[item.parent_id].children.push(map[item.id]);
+        } else if (!root) {
+          root = map[item.id]; // Root ancestor
+        }
+      });
+
+      return root;
+    }
+
+    // 4. Render Tree Diagram using D3.js
+    function renderD3Tree(data) {
+      document.getElementById("tree-container").innerHTML = "";
+
+      const width = document.getElementById("tree-container").offsetWidth;
+      const height = 500;
+
+      const svg = d3.select("#tree-container").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", "translate(50, 50)");
+
+      const hierarchy = d3.hierarchy(data);
+      const treeLayout = d3.tree().size([height - 100, width - 250]);
+      treeLayout(hierarchy);
+
+      // Draw Connection Lines
+      svg.selectAll('.link')
+        .data(hierarchy.links())
+        .enter()
+        .append('path')
+        .attr('class', 'link')
+        .attr('d', d3.linkHorizontal().x(d => d.y).y(d => d.x));
+
+      // Draw Nodes
+      const node = svg.selectAll('.node')
+        .data(hierarchy.descendants())
+        .enter()
+        .append('g')
+        .attr('class', 'node')
+        .attr('transform', d => `translate(${d.y},${d.x})`);
+
+      node.append('circle').attr('r', 6);
+
+      // Name Text
+      node.append('text')
+        .attr('dy', '-0.3em')
+        .attr('x', 12)
+        .text(d => d.data.full_name);
+
+      // Generation/Spouse Text
+      node.append('text')
+        .attr('class', 'details')
+        .attr('dy', '1.1em')
+        .attr('x', 12)
+        .text(d => `Gen: ${d.data.generation || '-'} ${d.data.spouse_name ? '| Spouse: ' + d.data.spouse_name : ''}`);
+    }
+
+    // 5. Handle Form Submission to Google Sheet
+    document.getElementById("family-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const statusMsg = document.getElementById("status-msg");
+      statusMsg.style.color = "#2563eb";
+      statusMsg.textContent = "Submitting to Google Sheet...";
+
+      const payload = {
+        full_name: document.getElementById("full_name").value,
+        parent_id: document.getElementById("parent_id").value,
+        spouse_name: document.getElementById("spouse_name").value,
+        generation: document.getElementById("generation").value,
+        notes: document.getElementById("notes").value
+      };
+
+      try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors", // Necessary for Google Apps Script cross-origin POST requests
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        statusMsg.style.color = "#16a34a";
+        statusMsg.textContent = "✅ Submitted! Your entry is now pending admin approval in the sheet.";
+        document.getElementById("family-form").reset();
+      } catch (err) {
+        statusMsg.style.color = "#dc2626";
+        statusMsg.textContent = "Error submitting: " + err.message;
+      }
+    });
+
+    // Initial Load
+    loadFamilyData();
+  </script>
+</body>
+</html>
