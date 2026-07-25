@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Silsilah Keturunan - Family Tree</title>
+  <title>Silsilah Keturunan Ki Gusti Ngurah Panji Sakti</title>
   
   <!-- D3.js Library -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -11,32 +11,60 @@
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { margin: 0; padding: 20px; background-color: #f8fafc; color: #1e293b; }
-    h1 { text-align: center; color: #0f172a; margin-bottom: 5px; }
-    p.subtitle { text-align: center; color: #64748b; margin-top: 0; margin-bottom: 25px; }
+    h1 { text-align: center; color: #0f172a; margin-bottom: 5px; margin-top: 10px; }
+    p.subtitle { text-align: center; color: #64748b; margin-top: 0; margin-bottom: 20px; }
     
-    .container { display: flex; flex-direction: column; gap: 20px; max-width: 1200px; margin: 0 auto; }
+    .container { display: flex; flex-direction: column; gap: 20px; max-width: 1400px; margin: 0 auto; }
     
     #tree-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
       border-radius: 12px;
-      padding: 20px;
+      position: relative;
+      overflow: hidden;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-      min-height: 450px;
+      height: 700px;
     }
-    #tree-container { width: 100%; height: 500px; }
+
+    #tree-container { width: 100%; height: 100%; background-color: #fafafa; cursor: grab; }
+    #tree-container:active { cursor: grabbing; }
     
-    .node circle { fill: #2563eb; stroke: #1d4ed8; stroke-width: 2px; }
-    .node text { font-size: 13px; font-weight: 600; fill: #1e293b; }
-    .node .details { font-size: 11px; fill: #64748b; }
+    /* Zoom Controls Floating Bar */
+    .controls-bar {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 6px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+    .ctrl-btn {
+      background: #ffffff; border: 1px solid #cbd5e1;
+      padding: 6px 12px; font-weight: bold; border-radius: 4px;
+      cursor: pointer; color: #334155; font-size: 14px;
+    }
+    .ctrl-btn:hover { background: #f1f5f9; color: #2563eb; }
+
+    /* D3 Styling */
+    .node circle { fill: #2563eb; stroke: #1d4ed8; stroke-width: 2px; cursor: pointer; transition: all 0.2s; }
+    .node circle:hover { fill: #f59e0b; stroke: #d97706; r: 8px; }
+    .node--collapsed circle { fill: #e11d48; stroke: #be123c; }
+    .node text { font-size: 13px; font-weight: 600; fill: #0f172a; text-shadow: 0 1px 2px white; }
+    .node .details { font-size: 11px; fill: #64748b; font-weight: normal; }
     .link { fill: none; stroke: #cbd5e1; stroke-width: 2px; }
 
+    /* Form Styling */
     #form-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 25px;
-      max-width: 600px;
+      max-width: 650px;
       margin: 0 auto;
       width: 100%;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
@@ -47,12 +75,12 @@
       width: 100%; padding: 10px; border: 1px solid #cbd5e1;
       border-radius: 6px; font-size: 14px;
     }
-    button {
+    button.submit-btn {
       width: 100%; padding: 12px; background-color: #2563eb;
       color: white; border: none; border-radius: 6px;
       font-weight: 600; cursor: pointer; font-size: 15px;
     }
-    button:hover { background-color: #1d4ed8; }
+    button.submit-btn:hover { background-color: #1d4ed8; }
     #status-msg { margin-top: 10px; text-align: center; font-weight: 600; }
     .notice { padding: 20px; background: #fff1f2; border: 1px solid #fecdd3; color: #9f1239; border-radius: 8px; text-align: center; font-size: 14px; line-height: 1.6; }
   </style>
@@ -64,51 +92,59 @@
 
   <div class="container">
     <div id="tree-card">
+      <div class="controls-bar">
+        <button class="ctrl-btn" onclick="zoomIn()">+</button>
+        <button class="ctrl-btn" onclick="zoomOut()">-</button>
+        <button class="ctrl-btn" onclick="resetZoom()">Reset View</button>
+      </div>
       <div id="tree-container"></div>
     </div>
 
     <div id="form-card">
-      <h3>Add Family Member</h3>
+      <h3>Tambah Anggota Silsilah (Add Family Member)</h3>
       <form id="family-form">
         <div class="form-group">
-          <label for="full_name">Full Name & Title *</label>
-          <input type="text" id="full_name" required placeholder="e.g. Ki Gusti Alit Oka">
+          <label for="full_name">Nama Lengkap & Gelar *</label>
+          <input type="text" id="full_name" required placeholder="Contoh: Ki Gusti Alit Panji">
         </div>
 
         <div class="form-group">
-          <label for="parent_id">Select Parent *</label>
+          <label for="parent_id">Pilih Orang Tua (Select Parent) *</label>
           <select id="parent_id" required>
-            <option value="">-- Select Parent --</option>
+            <option value="">-- Pilih Orang Tua --</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="spouse_name">Spouse Name (Optional)</label>
-          <input type="text" id="spouse_name" placeholder="e.g. Ni Gusti Ayu">
+          <label for="spouse_name">Nama Pasangan (Spouse Name)</label>
+          <input type="text" id="spouse_name" placeholder="Contoh: Ni Niang Den Bukit">
         </div>
 
         <div class="form-group">
-          <label for="generation">Generation (Optional)</label>
-          <input type="text" id="generation" placeholder="e.g. II, III, IV">
+          <label for="generation">Generasi ke- (Generation)</label>
+          <input type="text" id="generation" placeholder="Contoh: I, II, III, IV...">
         </div>
 
         <div class="form-group">
-          <label for="notes">Historical Notes / Biography</label>
-          <textarea id="notes" rows="3" placeholder="Additional details..."></textarea>
+          <label for="notes">Catatan Sejarah / Biografi Short</label>
+          <textarea id="notes" rows="3" placeholder="Informasi tambahan..."></textarea>
         </div>
 
-        <button type="submit" id="submit-btn">Submit Member for Review</button>
+        <button type="submit" class="submit-btn" id="submit-btn">Kirim untuk Ditinjau (Submit Member)</button>
         <p id="status-msg"></p>
       </form>
     </div>
   </div>
 
   <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5Fd73H8KTrfMo5z2n7VHr_aEfu92qQXcgomoxfCYekGDO-X9XuxFk8RGjzbMP3DP_/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxsWbmOY43vWKhJjujcMbE1Bpx-n2KWAWTWxl7Z8oXJjX1nXAfHYSgZ2wK4Cdj59cTB/exec";
+
+    let svg, g, zoomBehavior, rootData, d3Hierarchy;
+    let i = 0;
 
     async function loadFamilyData() {
       const treeContainer = document.getElementById("tree-container");
-      treeContainer.innerHTML = "<p style='text-align:center; padding-top: 100px; color: #64748b;'>Loading family tree from Google Sheets...</p>";
+      treeContainer.innerHTML = "<p style='text-align:center; padding-top: 300px; color: #64748b;'>Memuat Silsilah dari Google Sheets...</p>";
 
       try {
         const response = await fetch(GOOGLE_SCRIPT_URL);
@@ -116,38 +152,38 @@
 
         if (!Array.isArray(data) || data.length === 0) {
           treeContainer.innerHTML = `
-            <div class="notice">
-              ⚠️ <strong>No family entries found in Google Sheet.</strong><br>
-              Please make sure your Google Sheet has a tab named <code>Approved_Members</code> with header names <code>id</code>, <code>full_name</code>, <code>parent_id</code> in Row 1 and data starting at Row 2.
+            <div class="notice" style="margin: 40px;">
+              ⚠️ <strong>Tidak ada data silsilah ditemukan.</strong><br>
+              Pastikan sheet bernama <code>Approved_Members</code> diisi dengan benar.
             </div>`;
           return;
         }
 
         populateParentDropdown(data);
-        const hierarchyData = buildHierarchy(data);
+        rootData = buildHierarchy(data);
         
-        if (hierarchyData) {
-          renderD3Tree(hierarchyData);
+        if (rootData) {
+          initD3Tree(rootData);
         } else {
           treeContainer.innerHTML = `
-            <div class="notice">
-              ⚠️ <strong>Unable to construct tree hierarchy.</strong><br>
-              Check that your root ancestor has an <code>id</code> (e.g. <code>P001</code>) and an empty <code>parent_id</code> in your Google Sheet.
+            <div class="notice" style="margin: 40px;">
+              ⚠️ <strong>Gagal menyusun hierarki silsilah.</strong><br>
+              Pastikan Leluhur Utama (Panji Sakti) memiliki ID (seperti <code>P001</code>) dan kolom <code>parent_id</code> dikosongkan.
             </div>`;
         }
       } catch (err) {
         console.error("Error loading tree:", err);
         treeContainer.innerHTML = `
-          <div class="notice">
-            ⚠️ <strong>Unable to connect to Google Apps Script API.</strong><br>
-            Please check that your Web App deployment setting is set to <em>Who has access: Anyone</em> in Google Apps Script.
+          <div class="notice" style="margin: 40px;">
+            ⚠️ <strong>Tidak dapat terhubung ke Google Apps Script API.</strong><br>
+            Periksa kembali pengaturan deployment Web App Anda.
           </div>`;
       }
     }
 
     function populateParentDropdown(members) {
       const select = document.getElementById("parent_id");
-      select.innerHTML = '<option value="">-- Select Parent --</option>';
+      select.innerHTML = '<option value="">-- Pilih Orang Tua --</option>';
       members.forEach(member => {
         if (member.id && member.full_name) {
           const opt = document.createElement("option");
@@ -181,55 +217,158 @@
       return root;
     }
 
-    function renderD3Tree(data) {
+    function initD3Tree(data) {
       document.getElementById("tree-container").innerHTML = "";
 
-      const width = document.getElementById("tree-container").offsetWidth;
-      const height = 500;
+      const container = document.getElementById("tree-container");
+      const width = container.clientWidth;
+      const height = container.clientHeight;
 
-      const svg = d3.select("#tree-container").append("svg")
-        .attr("width", width)
-        .attr("height", height)
-        .append("g")
-        .attr("transform", "translate(50, 50)");
+      svg = d3.select("#tree-container").append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%");
 
-      const hierarchy = d3.hierarchy(data);
-      const treeLayout = d3.tree().size([height - 100, width - 250]);
-      treeLayout(hierarchy);
+      g = svg.append("g");
 
-      svg.selectAll('.link')
-        .data(hierarchy.links())
-        .enter()
-        .append('path')
-        .attr('class', 'link')
-        .attr('d', d3.linkHorizontal().x(d => d.y).y(d => d.x));
+      zoomBehavior = d3.zoom()
+        .scaleExtent([0.15, 2.5])
+        .on("zoom", (e) => g.attr("transform", e.transform));
 
-      const node = svg.selectAll('.node')
-        .data(hierarchy.descendants())
-        .enter()
-        .append('g')
-        .attr('class', 'node')
-        .attr('transform', d => `translate(${d.y},${d.x})`);
+      svg.call(zoomBehavior);
 
-      node.append('circle').attr('r', 6);
+      d3Hierarchy = d3.hierarchy(data, d => d.children);
+      d3Hierarchy.x0 = height / 2;
+      d3Hierarchy.y0 = 0;
 
-      node.append('text')
-        .attr('dy', '-0.3em')
-        .attr('x', 12)
-        .text(d => d.data.full_name || 'Unnamed');
+      // Automatically collapse after Generation 3 initially to prevent screen clutter
+      if (d3Hierarchy.children) {
+        d3Hierarchy.children.forEach(collapseDeep);
+      }
 
-      node.append('text')
-        .attr('class', 'details')
-        .attr('dy', '1.1em')
-        .attr('x', 12)
-        .text(d => `Gen: ${d.data.generation || '-'} ${d.data.spouse_name ? '| Spouse: ' + d.data.spouse_name : ''}`);
+      updateTree(d3Hierarchy);
+
+      // Center initial view on the root node
+      svg.call(zoomBehavior.transform, d3.zoomIdentity.translate(120, height / 2).scale(0.85));
     }
 
+    function collapseDeep(d) {
+      if (d.children && d.children.length > 0) {
+        if (d.depth >= 2) {
+          d._children = d.children;
+          d.children = null;
+        }
+        if (d._children) d._children.forEach(collapseDeep);
+        if (d.children) d.children.forEach(collapseDeep);
+      }
+    }
+
+    function updateTree(source) {
+      // Set fixed vertical spacing (45px) and horizontal distance per generation (280px)
+      const treeLayout = d3.tree().nodeSize([45, 280]);
+      const treeData = treeLayout(d3Hierarchy);
+
+      const nodes = treeData.descendants();
+      const links = treeData.links();
+
+      nodes.forEach(d => { d.y = d.depth * 280; });
+
+      // --- NODES ---
+      const node = g.selectAll('g.node')
+        .data(nodes, d => d.id || (d.id = ++i));
+
+      const nodeEnter = node.enter().append('g')
+        .attr('class', d => 'node' + (d._children ? ' node--collapsed' : ''))
+        .attr('transform', d => `translate(${source.y0},${source.x0})`)
+        .on('click', (event, d) => {
+          if (d.children) {
+            d._children = d.children;
+            d.children = null;
+          } else if (d._children) {
+            d.children = d._children;
+            d._children = null;
+          }
+          updateTree(d);
+        });
+
+      nodeEnter.append('circle')
+        .attr('r', 6);
+
+      nodeEnter.append('text')
+        .attr('dy', '-0.35em')
+        .attr('x', 14)
+        .text(d => d.data.full_name || 'Unnamed');
+
+      nodeEnter.append('text')
+        .attr('class', 'details')
+        .attr('dy', '1.15em')
+        .attr('x', 14)
+        .text(d => `Gen: ${d.data.generation || '-'} ${d.data.spouse_name ? '| Pasangan: ' + d.data.spouse_name : ''}`);
+
+      const nodeUpdate = nodeEnter.merge(node);
+
+      nodeUpdate.transition().duration(350)
+        .attr('transform', d => `translate(${d.y},${d.x})`)
+        .attr('class', d => 'node' + (d._children ? ' node--collapsed' : ''));
+
+      nodeUpdate.select('circle')
+        .attr('r', 6);
+
+      const nodeExit = node.exit().transition().duration(350)
+        .attr('transform', d => `translate(${source.y},${source.x})`)
+        .remove();
+
+      nodeExit.select('circle').attr('r', 1e-6);
+
+      // --- LINKS ---
+      const link = g.selectAll('path.link')
+        .data(links, d => d.target.id);
+
+      const linkEnter = link.enter().insert('path', 'g')
+        .attr('class', 'link')
+        .attr('d', d => {
+          const o = { x: source.x0, y: source.y0 };
+          return diagonal(o, o);
+        });
+
+      const linkUpdate = linkEnter.merge(link);
+
+      linkUpdate.transition().duration(350)
+        .attr('d', d => diagonal(d.source, d.target));
+
+      link.exit().transition().duration(350)
+        .attr('d', d => {
+          const o = { x: source.x, y: source.y };
+          return diagonal(o, o);
+        })
+        .remove();
+
+      nodes.forEach(d => {
+        d.x0 = d.x;
+        d.y0 = d.y;
+      });
+    }
+
+    function diagonal(s, d) {
+      return `M ${s.y} ${s.x}
+              C ${(s.y + d.y) / 2} ${s.x},
+                ${(s.y + d.y) / 2} ${d.x},
+                ${d.y} ${d.x}`;
+    }
+
+    // Zoom Button Handlers
+    function zoomIn() { svg.transition().duration(300).call(zoomBehavior.scaleBy, 1.3); }
+    function zoomOut() { svg.transition().duration(300).call(zoomBehavior.scaleBy, 0.7); }
+    function resetZoom() {
+      const height = document.getElementById("tree-container").clientHeight;
+      svg.transition().duration(400).call(zoomBehavior.transform, d3.zoomIdentity.translate(120, height / 2).scale(0.85));
+    }
+
+    // Form Submission
     document.getElementById("family-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const statusMsg = document.getElementById("status-msg");
       statusMsg.style.color = "#2563eb";
-      statusMsg.textContent = "Submitting to Google Sheet...";
+      statusMsg.textContent = "Mengirim data ke Google Sheet...";
 
       const payload = {
         full_name: document.getElementById("full_name").value,
@@ -248,11 +387,11 @@
         });
 
         statusMsg.style.color = "#16a34a";
-        statusMsg.textContent = "✅ Submitted! Your entry is now pending admin approval in your sheet.";
+        statusMsg.textContent = "✅ Berhasil dikirim! Data menunggu persetujuan admin di Google Sheet.";
         document.getElementById("family-form").reset();
       } catch (err) {
         statusMsg.style.color = "#dc2626";
-        statusMsg.textContent = "Error submitting: " + err.message;
+        statusMsg.textContent = "Gagal mengirim: " + err.message;
       }
     });
 
