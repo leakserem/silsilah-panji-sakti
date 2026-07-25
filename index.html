@@ -11,7 +11,7 @@
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { margin: 0; padding: 20px; background-color: #f8fafc; color: #1e293b; }
-    h1 { text-align: center; color: #0f172a; margin-bottom: 5px; margin-top: 10px; }
+    h1 { text-align: center; color: #0f172a; margin-bottom: 5px; margin-top: 10px; text-transform: uppercase; }
     p.subtitle { text-align: center; color: #64748b; margin-top: 0; margin-bottom: 20px; }
     
     .container { display: flex; flex-direction: column; gap: 20px; max-width: 1400px; margin: 0 auto; }
@@ -54,8 +54,8 @@
     .node circle { fill: #2563eb; stroke: #1d4ed8; stroke-width: 2px; cursor: pointer; transition: all 0.2s; }
     .node circle:hover { fill: #f59e0b; stroke: #d97706; r: 8px; }
     .node--collapsed circle { fill: #e11d48; stroke: #be123c; }
-    .node text { font-size: 13px; font-weight: 600; fill: #0f172a; text-shadow: 0 1px 2px white; }
-    .node .details { font-size: 11px; fill: #64748b; font-weight: normal; }
+    .node text { font-size: 13px; font-weight: 700; fill: #0f172a; text-shadow: 0 1px 2px white; text-transform: uppercase; }
+    .node .details { font-size: 11px; fill: #64748b; font-weight: normal; text-transform: none; }
     .link { fill: none; stroke: #cbd5e1; stroke-width: 2px; }
 
     /* Form Styling */
@@ -75,6 +75,10 @@
       width: 100%; padding: 10px; border: 1px solid #cbd5e1;
       border-radius: 6px; font-size: 14px;
     }
+    
+    /* Uppercase input styling */
+    .uppercase-input { text-transform: uppercase; }
+    
     button.submit-btn {
       width: 100%; padding: 12px; background-color: #2563eb;
       color: white; border: none; border-radius: 6px;
@@ -105,7 +109,7 @@
       <form id="family-form">
         <div class="form-group">
           <label for="full_name">Nama Lengkap & Gelar *</label>
-          <input type="text" id="full_name" required placeholder="Contoh: Ki Gusti Alit Panji">
+          <input type="text" id="full_name" class="uppercase-input" required placeholder="CONTOH: KI GUSTI ALIT PANJI">
         </div>
 
         <div class="form-group">
@@ -117,17 +121,17 @@
 
         <div class="form-group">
           <label for="spouse_name">Nama Pasangan (Spouse Name)</label>
-          <input type="text" id="spouse_name" placeholder="Contoh: Ni Niang Den Bukit">
+          <input type="text" id="spouse_name" class="uppercase-input" placeholder="CONTOH: NI NIANG DEN BUKIT">
         </div>
 
         <div class="form-group">
           <label for="generation">Generasi ke- (Generation)</label>
-          <input type="text" id="generation" placeholder="Contoh: I, II, III, IV...">
+          <input type="text" id="generation" placeholder="Contoh: 1, 2, 3, 7...">
         </div>
 
         <div class="form-group">
-          <label for="notes">Catatan Sejarah / Biografi Short</label>
-          <textarea id="notes" rows="3" placeholder="Informasi tambahan..."></textarea>
+          <label for="notes">Catatan Sejarah / Biografi Short / Lokasi</label>
+          <textarea id="notes" rows="3" class="uppercase-input" placeholder="CONTOH: DI SUKASADA..."></textarea>
         </div>
 
         <button type="submit" class="submit-btn" id="submit-btn">Kirim untuk Ditinjau (Submit Member)</button>
@@ -188,7 +192,9 @@
         if (member.id && member.full_name) {
           const opt = document.createElement("option");
           opt.value = member.id;
-          opt.textContent = `${member.full_name} (Gen ${member.generation || '-'})`;
+          const nameUpper = String(member.full_name).toUpperCase();
+          const genLower = String(member.generation || '-').toLowerCase();
+          opt.textContent = `${nameUpper} (gen: ${genLower})`;
           select.appendChild(opt);
         }
       });
@@ -240,14 +246,12 @@
       d3Hierarchy.x0 = height / 2;
       d3Hierarchy.y0 = 0;
 
-      // Automatically collapse after Generation 3 initially to prevent screen clutter
       if (d3Hierarchy.children) {
         d3Hierarchy.children.forEach(collapseDeep);
       }
 
       updateTree(d3Hierarchy);
 
-      // Center initial view on the root node
       svg.call(zoomBehavior.transform, d3.zoomIdentity.translate(120, height / 2).scale(0.85));
     }
 
@@ -263,7 +267,6 @@
     }
 
     function updateTree(source) {
-      // Set fixed vertical spacing (45px) and horizontal distance per generation (280px)
       const treeLayout = d3.tree().nodeSize([45, 280]);
       const treeData = treeLayout(d3Hierarchy);
 
@@ -293,16 +296,23 @@
       nodeEnter.append('circle')
         .attr('r', 6);
 
+      // Full Name (UPPERCASE)
       nodeEnter.append('text')
         .attr('dy', '-0.35em')
         .attr('x', 14)
-        .text(d => d.data.full_name || 'Unnamed');
+        .text(d => String(d.data.full_name || 'UNNAMED').toUpperCase());
 
+      // Details: gen (lowercase/numbers), spouse (UPPERCASE), notes/lokasi (UPPERCASE)
       nodeEnter.append('text')
         .attr('class', 'details')
         .attr('dy', '1.15em')
         .attr('x', 14)
-        .text(d => `Gen: ${d.data.generation || '-'} ${d.data.spouse_name ? '| Pasangan: ' + d.data.spouse_name : ''}`);
+        .text(d => {
+          const gen = String(d.data.generation || '-').toLowerCase();
+          const spouse = d.data.spouse_name ? ` | Pasangan: ${String(d.data.spouse_name).toUpperCase()}` : '';
+          const note = d.data.notes ? ` | ${String(d.data.notes).toUpperCase()}` : '';
+          return `gen: ${gen}${spouse}${note}`;
+        });
 
       const nodeUpdate = nodeEnter.merge(node);
 
@@ -371,11 +381,11 @@
       statusMsg.textContent = "Mengirim data ke Google Sheet...";
 
       const payload = {
-        full_name: document.getElementById("full_name").value,
+        full_name: document.getElementById("full_name").value.toUpperCase(),
         parent_id: document.getElementById("parent_id").value,
-        spouse_name: document.getElementById("spouse_name").value,
-        generation: document.getElementById("generation").value,
-        notes: document.getElementById("notes").value
+        spouse_name: document.getElementById("spouse_name").value.toUpperCase(),
+        generation: document.getElementById("generation").value.toLowerCase(),
+        notes: document.getElementById("notes").value.toUpperCase()
       };
 
       try {
