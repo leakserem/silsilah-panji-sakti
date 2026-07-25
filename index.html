@@ -29,20 +29,65 @@
     #tree-container { width: 100%; height: 100%; background-color: #fafafa; cursor: grab; }
     #tree-container:active { cursor: grabbing; }
     
-    /* Zoom Controls Floating Bar */
-    .controls-bar {
+    /* Top Toolbar (Search + Zoom Controls) */
+    .toolbar {
       position: absolute;
       top: 15px;
+      left: 15px;
       right: 15px;
       display: flex;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.9);
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      pointer-events: none; /* Let clicks pass through empty spaces */
+    }
+
+    .search-box {
+      pointer-events: auto;
+      display: flex;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .search-box input {
+      flex: 1;
+      border: 1px solid #cbd5e1;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      text-transform: uppercase;
+      outline: none;
+    }
+
+    .search-box button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .search-box button:hover { background: #1d4ed8; }
+
+    .controls-bar {
+      pointer-events: auto;
+      display: flex;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.95);
       padding: 6px;
       border-radius: 8px;
       border: 1px solid #cbd5e1;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      z-index: 10;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
+
     .ctrl-btn {
       background: #ffffff; border: 1px solid #cbd5e1;
       padding: 6px 12px; font-weight: bold; border-radius: 4px;
@@ -50,10 +95,19 @@
     }
     .ctrl-btn:hover { background: #f1f5f9; color: #2563eb; }
 
-    /* D3 Styling */
-    .node circle { fill: #2563eb; stroke: #1d4ed8; stroke-width: 2px; cursor: pointer; transition: all 0.2s; }
+    /* D3 Tree Styling */
+    .node circle { fill: #2563eb; stroke: #1d4ed8; stroke-width: 2px; cursor: pointer; transition: all 0.3s; }
     .node circle:hover { fill: #f59e0b; stroke: #d97706; r: 8px; }
     .node--collapsed circle { fill: #e11d48; stroke: #be123c; }
+    
+    /* Highlighted target node */
+    .node.highlighted circle {
+      fill: #f59e0b !important;
+      stroke: #b45309 !important;
+      stroke-width: 4px !important;
+      r: 10px !important;
+    }
+
     .node text { font-size: 13px; font-weight: 700; fill: #0f172a; text-shadow: 0 1px 2px white; text-transform: uppercase; }
     .node .details { font-size: 11px; fill: #64748b; font-weight: normal; text-transform: none; }
     .link { fill: none; stroke: #cbd5e1; stroke-width: 2px; }
@@ -76,7 +130,6 @@
       border-radius: 6px; font-size: 14px;
     }
     
-    /* Uppercase input styling */
     .uppercase-input { text-transform: uppercase; }
     
     button.submit-btn {
@@ -96,11 +149,22 @@
 
   <div class="container">
     <div id="tree-card">
-      <div class="controls-bar">
-        <button class="ctrl-btn" onclick="zoomIn()">+</button>
-        <button class="ctrl-btn" onclick="zoomOut()">-</button>
-        <button class="ctrl-btn" onclick="resetZoom()">Reset View</button>
+      <div class="toolbar">
+        <!-- Search Bar with Auto-Complete -->
+        <div class="search-box">
+          <input type="text" id="search-input" list="members-list" placeholder="🔍 Cari Nama Anggota..." onkeydown="if(event.key==='Enter') searchMember()">
+          <datalist id="members-list"></datalist>
+          <button onclick="searchMember()">Cari</button>
+        </div>
+
+        <!-- Zoom Controls -->
+        <div class="controls-bar">
+          <button class="ctrl-btn" onclick="zoomIn()">+</button>
+          <button class="ctrl-btn" onclick="zoomOut()">-</button>
+          <button class="ctrl-btn" onclick="resetZoom()">Reset View</button>
+        </div>
       </div>
+
       <div id="tree-container"></div>
     </div>
 
@@ -145,6 +209,7 @@
 
     let svg, g, zoomBehavior, rootData, d3Hierarchy;
     let i = 0;
+    let rawMembersList = [];
 
     async function loadFamilyData() {
       const treeContainer = document.getElementById("tree-container");
@@ -163,7 +228,8 @@
           return;
         }
 
-        populateParentDropdown(data);
+        rawMembersList = data;
+        populateDropdowns(data);
         rootData = buildHierarchy(data);
         
         if (rootData) {
@@ -185,17 +251,28 @@
       }
     }
 
-    function populateParentDropdown(members) {
+    function populateDropdowns(members) {
       const select = document.getElementById("parent_id");
+      const datalist = document.getElementById("members-list");
+
       select.innerHTML = '<option value="">-- Pilih Orang Tua --</option>';
+      datalist.innerHTML = '';
+
       members.forEach(member => {
         if (member.id && member.full_name) {
-          const opt = document.createElement("option");
-          opt.value = member.id;
           const nameUpper = String(member.full_name).toUpperCase();
           const genLower = String(member.generation || '-').toLowerCase();
+          
+          // Form Parent Dropdown
+          const opt = document.createElement("option");
+          opt.value = member.id;
           opt.textContent = `${nameUpper} (gen: ${genLower})`;
           select.appendChild(opt);
+
+          // Search Datalist Auto-complete
+          const listOpt = document.createElement("option");
+          listOpt.value = nameUpper;
+          datalist.appendChild(listOpt);
         }
       });
     }
@@ -227,7 +304,6 @@
       document.getElementById("tree-container").innerHTML = "";
 
       const container = document.getElementById("tree-container");
-      const width = container.clientWidth;
       const height = container.clientHeight;
 
       svg = d3.select("#tree-container").append("svg")
@@ -293,8 +369,7 @@
           updateTree(d);
         });
 
-      nodeEnter.append('circle')
-        .attr('r', 6);
+      nodeEnter.append('circle').attr('r', 6);
 
       // Full Name (UPPERCASE)
       nodeEnter.append('text')
@@ -302,7 +377,7 @@
         .attr('x', 14)
         .text(d => String(d.data.full_name || 'UNNAMED').toUpperCase());
 
-      // Details: gen (lowercase/numbers), spouse (UPPERCASE), notes/lokasi (UPPERCASE)
+      // Details
       nodeEnter.append('text')
         .attr('class', 'details')
         .attr('dy', '1.15em')
@@ -318,10 +393,7 @@
 
       nodeUpdate.transition().duration(350)
         .attr('transform', d => `translate(${d.y},${d.x})`)
-        .attr('class', d => 'node' + (d._children ? ' node--collapsed' : ''));
-
-      nodeUpdate.select('circle')
-        .attr('r', 6);
+        .attr('class', d => 'node' + (d._children ? ' node--collapsed' : '') + (d.data.isHighlighted ? ' highlighted' : ''));
 
       const nodeExit = node.exit().transition().duration(350)
         .attr('transform', d => `translate(${source.y},${source.x})`)
@@ -363,6 +435,54 @@
               C ${(s.y + d.y) / 2} ${s.x},
                 ${(s.y + d.y) / 2} ${d.x},
                 ${d.y} ${d.x}`;
+    }
+
+    // --- SEARCH FUNCTION ---
+    function searchMember() {
+      const query = document.getElementById("search-input").value.trim().toUpperCase();
+      if (!query) return;
+
+      let targetNode = null;
+
+      // Find matching node in hierarchy
+      d3Hierarchy.each(d => {
+        if (d.data.full_name && String(d.data.full_name).toUpperCase().includes(query)) {
+          targetNode = d;
+        }
+        delete d.data.isHighlighted; // Clear previous highlights
+      });
+
+      if (!targetNode) {
+        alert("Nama tidak ditemukan! Silakan periksa kembali ejaan nama.");
+        return;
+      }
+
+      // Automatically expand all ancestor nodes leading up to this person
+      let current = targetNode;
+      while (current.parent) {
+        if (current.parent._children) {
+          current.parent.children = current.parent._children;
+          current.parent._children = null;
+        }
+        current = current.parent;
+      }
+
+      // Highlight target node
+      targetNode.data.isHighlighted = true;
+      updateTree(targetNode);
+
+      // Smoothly pan and zoom camera to the target person
+      const containerHeight = document.getElementById("tree-container").clientHeight;
+      const containerWidth = document.getElementById("tree-container").clientWidth;
+      
+      const scale = 1.1;
+      const x = containerWidth / 2 - (targetNode.y * scale);
+      const y = containerHeight / 2 - (targetNode.x * scale);
+
+      svg.transition().duration(750).call(
+        zoomBehavior.transform,
+        d3.zoomIdentity.translate(x, y).scale(scale)
+      );
     }
 
     // Zoom Button Handlers
