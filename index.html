@@ -493,18 +493,41 @@
       svg.transition().duration(400).call(zoomBehavior.transform, d3.zoomIdentity.translate(120, height / 2).scale(0.85));
     }
 
-    // Form Submission
+// Form Submission with Duplicate Warning
     document.getElementById("family-form").addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      const inputName = document.getElementById("full_name").value.trim().toUpperCase();
+      const inputGen = document.getElementById("generation").value.trim().toLowerCase();
       const statusMsg = document.getElementById("status-msg");
+
+      // 🔍 Duplicate Check: Match both Name AND Generation
+      const duplicateFound = rawMembersList.some(member => {
+        const existingName = String(member.full_name || "").trim().toUpperCase();
+        const existingGen = String(member.generation || "").trim().toLowerCase();
+        return existingName === inputName && existingGen === inputGen;
+      });
+
+      // ⚠️ Warning Popup if Duplicate Found
+      if (duplicateFound) {
+        const proceed = confirm(
+          `⚠️ PERINGATAN DUPLIKAT!\n\nNama "${inputName}" di Generasi "${inputGen}" SUDAH ADA dalam silsilah.\n\nApakah Anda yakin tetap ingin mendaftarkan nama ini lagi?`
+        );
+        if (!proceed) {
+          statusMsg.style.color = "#dc2626";
+          statusMsg.textContent = "❌ Pengiriman dibatalkan. Data sudah ada di silsilah.";
+          return;
+        }
+      }
+
       statusMsg.style.color = "#2563eb";
       statusMsg.textContent = "Mengirim data ke Google Sheet...";
 
       const payload = {
-        full_name: document.getElementById("full_name").value.toUpperCase(),
+        full_name: inputName,
         parent_id: document.getElementById("parent_id").value,
         spouse_name: document.getElementById("spouse_name").value.toUpperCase(),
-        generation: document.getElementById("generation").value.toLowerCase(),
+        generation: inputGen,
         notes: document.getElementById("notes").value.toUpperCase()
       };
 
