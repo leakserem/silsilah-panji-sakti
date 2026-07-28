@@ -8,38 +8,49 @@
   <!-- D3.js Library -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
   
-  <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { margin: 0; padding: 20px; background-color: #f8fafc; color: #1e293b; }
-    h1 { text-align: center; color: #0f172a; margin-bottom: 5px; margin-top: 10px; text-transform: uppercase; }
-    p.subtitle { text-align: center; color: #64748b; margin-top: 0; margin-bottom: 20px; }
+<style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { margin: 0; padding: 15px; background-color: #f8fafc; color: #1e293b; }
     
-    .container { display: flex; flex-direction: column; gap: 20px; max-width: 1400px; margin: 0 auto; }
+    h1 { 
+      text-align: center; 
+      color: #0f172a; 
+      margin-bottom: 4px; 
+      margin-top: 5px; 
+      font-size: 1.5rem; 
+      text-transform: uppercase; 
+      letter-spacing: 0.5px;
+    }
+    p.subtitle { text-align: center; color: #64748b; margin-top: 0; margin-bottom: 15px; font-size: 0.95rem; }
     
+    .container { display: flex; flex-direction: column; gap: 15px; max-width: 1400px; margin: 0 auto; }
+    
+    /* Tree View Card */
     #tree-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
       border-radius: 12px;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-      height: 700px;
+      box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06);
+      height: 650px;
     }
 
     #tree-container { width: 100%; height: 100%; background-color: #fafafa; cursor: grab; }
     #tree-container:active { cursor: grabbing; }
     
-    /* Top Toolbar (Search + Zoom Controls) */
+    /* Toolbar Layout */
     .toolbar {
       position: absolute;
-      top: 15px;
-      left: 15px;
-      right: 15px;
+      top: 12px;
+      left: 12px;
+      right: 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 10px;
       z-index: 10;
-      pointer-events: none; /* Let clicks pass through empty spaces */
+      pointer-events: none;
     }
 
     .search-box {
@@ -47,60 +58,72 @@
       display: flex;
       gap: 6px;
       background: rgba(255, 255, 255, 0.95);
-      padding: 6px 10px;
-      border-radius: 8px;
+      backdrop-filter: blur(4px);
+      padding: 6px;
+      border-radius: 10px;
       border: 1px solid #cbd5e1;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
       width: 100%;
-      max-width: 380px;
+      max-width: 400px;
     }
 
     .search-box input {
       flex: 1;
       border: 1px solid #cbd5e1;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 13px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
       text-transform: uppercase;
       outline: none;
+      min-height: 44px; /* Touch friendly */
     }
 
     .search-box button {
       background: #2563eb;
       color: white;
       border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
+      padding: 10px 16px;
+      border-radius: 8px;
       font-weight: 600;
-      font-size: 13px;
+      font-size: 14px;
       cursor: pointer;
+      min-height: 44px;
     }
-    .search-box button:hover { background: #1d4ed8; }
+    .search-box button:active { background: #1d4ed8; }
 
+    /* Zoom Floating Action Buttons */
     .controls-bar {
       pointer-events: auto;
       display: flex;
       gap: 6px;
       background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(4px);
       padding: 6px;
-      border-radius: 8px;
+      border-radius: 10px;
       border: 1px solid #cbd5e1;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     }
 
     .ctrl-btn {
-      background: #ffffff; border: 1px solid #cbd5e1;
-      padding: 6px 12px; font-weight: bold; border-radius: 4px;
-      cursor: pointer; color: #334155; font-size: 14px;
+      background: #ffffff; 
+      border: 1px solid #cbd5e1;
+      padding: 8px 14px; 
+      font-weight: bold; 
+      border-radius: 6px;
+      cursor: pointer; 
+      color: #334155; 
+      font-size: 14px;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
-    .ctrl-btn:hover { background: #f1f5f9; color: #2563eb; }
+    .ctrl-btn:active { background: #f1f5f9; color: #2563eb; }
 
-    /* D3 Tree Styling */
+    /* D3 Tree Node Styling */
     .node circle { fill: #2563eb; stroke: #1d4ed8; stroke-width: 2px; cursor: pointer; transition: all 0.3s; }
-    .node circle:hover { fill: #f59e0b; stroke: #d97706; r: 8px; }
     .node--collapsed circle { fill: #e11d48; stroke: #be123c; }
     
-    /* Highlighted target node */
     .node.highlighted circle {
       fill: #f59e0b !important;
       stroke: #b45309 !important;
@@ -117,29 +140,81 @@
       background: #ffffff;
       border: 1px solid #e2e8f0;
       border-radius: 12px;
-      padding: 25px;
+      padding: 20px;
       max-width: 650px;
       margin: 0 auto;
       width: 100%;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06);
     }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px; }
+
+    #form-card h3 { margin-top: 0; color: #0f172a; font-size: 1.15rem; margin-bottom: 15px; }
+
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #334155; }
     input, select, textarea {
-      width: 100%; padding: 10px; border: 1px solid #cbd5e1;
-      border-radius: 6px; font-size: 14px;
+      width: 100%; 
+      padding: 10px 12px; 
+      border: 1px solid #cbd5e1;
+      border-radius: 8px; 
+      font-size: 14px;
+      min-height: 44px; /* Touch target size */
+      background-color: #fff;
     }
-    
+
+    textarea { min-height: 80px; resize: vertical; }
     .uppercase-input { text-transform: uppercase; }
     
     button.submit-btn {
-      width: 100%; padding: 12px; background-color: #2563eb;
-      color: white; border: none; border-radius: 6px;
-      font-weight: 600; cursor: pointer; font-size: 15px;
+      width: 100%; 
+      padding: 12px; 
+      background-color: #2563eb;
+      color: white; 
+      border: none; 
+      border-radius: 8px;
+      font-weight: 600; 
+      cursor: pointer; 
+      font-size: 15px;
+      min-height: 48px;
     }
     button.submit-btn:hover { background-color: #1d4ed8; }
-    #status-msg { margin-top: 10px; text-align: center; font-weight: 600; }
-    .notice { padding: 20px; background: #fff1f2; border: 1px solid #fecdd3; color: #9f1239; border-radius: 8px; text-align: center; font-size: 14px; line-height: 1.6; }
+    #status-msg { margin-top: 12px; text-align: center; font-weight: 600; font-size: 14px; }
+
+    /* 📱 MOBILE RESPONSIVE MEDIA QUERIES */
+    @media (max-width: 640px) {
+      body { padding: 8px; }
+      h1 { font-size: 1.25rem; }
+      p.subtitle { font-size: 0.85rem; margin-bottom: 10px; }
+      
+      #tree-card { height: 55vh; min-height: 420px; }
+      
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+      }
+
+      .search-box {
+        max-width: 100%;
+      }
+
+      /* Move Zoom Controls to Bottom Right Floating position on mobile */
+      .controls-bar {
+        position: absolute;
+        bottom: -430px; /* Positions controls floating near bottom of canvas */
+        right: 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      }
+
+      .ctrl-btn {
+        padding: 6px 10px;
+        font-size: 13px;
+        min-height: 36px;
+      }
+
+      #form-card { padding: 15px; }
+    }
   </style>
 </head>
 <body>
