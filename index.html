@@ -247,14 +247,44 @@
       line-height: 1.6;
       box-shadow: 0 2px 6px rgba(0,0,0,0.03);
     }
-.header-description {
-  font-size: 14px;
-  color: #64748b; /* Warna abu-abu elegan agar tidak terlalu tebal */
-  max-width: 650px; /* Batas lebar teks agar otomatis turun berparagraf rapi */
-  margin: 10px auto 24px auto; /* Memberikan jarak atas-bawah dan rata tengah */
-  line-height: 1.6;
+/* Container Utama Header */
+.header-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;     /* Tetap rata tengah */
+  justify-content: center;
   text-align: center;
-  padding: 0 16px; /* Padding samping agar aman di layar HP */
+  padding: 20px 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Judul Utama */
+.main-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+  letter-spacing: 1px;
+}
+
+/* Nama Tokoh / Sub-judul (Otomatis Huruf Besar) */
+.sub-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #334155;
+  margin: 0 0 12px 0;
+  text-transform: uppercase; /* ⬅️ Mengubah teks menjadi HURUF KAPITAL SEMUA */
+  letter-spacing: 0.5px;
+}
+
+/* Deskripsi Teks */
+.header-description {
+  font-size: 13px;
+  color: #475569;
+  max-width: 620px;
+  line-height: 1.6;
+  margin: 0;
   font-weight: 400;
 }
     .disclaimer-card strong {
@@ -271,15 +301,13 @@
 </head>
 <body>
 
-<div class="header-title">
-  <h1>SILSILAH KETURUNAN</h1>
-  <h2>KI GUSTI NGURAH PANJI SAKTI</h2>
-  
-  <!-- ⬇️ Tambahkan tag paragraf ini ⬇️ -->
+<header class="header-container">
+  <h1 class="main-title">SILSILAH KETURUNAN</h1>
+  <h2 class="sub-title">KI GUSTI NGURAH PANJI SAKTI</h2>
   <p class="header-description">
     Mohon kesediaannya untuk melanjutkan pengisian dan atau melengkapi seluruh data yang kurang, agar dapat menyatukan seluruh garis keturunan ke dalam satu silsilah yang utuh dan akurat.
   </p>
-</div>
+</header>
   <div class="container">
     <div id="tree-card">
       <div class="toolbar">
