@@ -1,51 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- Primary Meta Tags -->
+  <!-- Meta Tags Utama -->
   <title>Silsilah Keturunan Ki Gusti Ngurah Panji Sakti</title>
   <meta name="title" content="Silsilah Keturunan Ki Gusti Ngurah Panji Sakti">
-  <meta name="description" content="Situs silsilah keluarga interaktif Ki Gusti Ngurah Panji Sakti. Jelajahi garis keturunan, pencarian anggota, dan pengajuan data silsilah keluarga.">
+  <meta name="description" content="Situs silsilah keluarga interaktif Ki Gusti Ngurah Panji Sakti. Jelajahi garis keturunan dan ajukan pembaruan data silsilah.">
   <meta name="keywords" content="Ki Gusti Ngurah Panji Sakti, Silsilah, Buleleng, Bali, Trah Panji Sakti, Family Tree, Genealogi">
   <meta name="author" content="Keluarga Besar Ki Gusti Ngurah Panji Sakti">
 
-  <!-- Open Graph / Facebook / WhatsApp Preview -->
+  <!-- Open Graph / Social Media Preview -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://silsilah.web.id/">
   <meta property="og:title" content="Silsilah Keturunan Ki Gusti Ngurah Panji Sakti">
-  <meta property="og:description" content="Situs silsilah keluarga interaktif Ki Gusti Ngurah Panji Sakti. Jelajahi garis keturunan dan silsilah keluarga secara langsung.">
+  <meta property="og:description" content="Situs silsilah keluarga interaktif Ki Gusti Ngurah Panji Sakti. Jelajahi garis keturunan secara langsung.">
   <meta property="og:image" content="https://silsilah.web.id/og-image.png">
-  <meta property="og:image:width" content="300">
-  <meta property="og:image:height" content="302">
 
-  <!-- Twitter Meta Tags -->
-  <meta property="twitter:card" content="summary">
-  <meta property="twitter:url" content="https://silsilah.web.id/">
-  <meta property="twitter:title" content="Silsilah Keturunan Ki Gusti Ngurah Panji Sakti">
-  <meta property="twitter:description" content="Situs silsilah keluarga interaktif Ki Gusti Ngurah Panji Sakti. Jelajahi garis keturunan dan silsilah keluarga secara langsung.">
-  <meta property="twitter:image" content="https://silsilah.web.id/og-image.png">
-
-  <!-- D3.js Library -->
+  <!-- Library D3.js -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
   
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
     body { margin: 0; padding: 15px; background-color: #f8fafc; color: #1e293b; }
     
-    h1 { 
-      text-align: center; 
-      color: #0f172a; 
-      margin-bottom: 4px; 
-      margin-top: 5px; 
-      font-size: 1.5rem; 
-      text-transform: uppercase; 
+    /* Header Container */
+    .header-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 10px 16px 20px 16px;
+      width: 100%;
+    }
+
+    .main-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 4px 0;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .sub-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #334155;
+      margin: 0 0 10px 0;
+      text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    p.subtitle { text-align: center; color: #64748b; margin-top: 0; margin-bottom: 15px; font-size: 0.95rem; }
+
+    .header-description {
+      font-size: 13px;
+      color: #475569;
+      max-width: 650px;
+      line-height: 1.6;
+      margin: 0;
+    }
     
-    .container { display: flex; flex-direction: column; gap: 15px; max-width: 1400px; margin: 0 auto; }
+    .container { display: flex; flex-direction: column; gap: 20px; max-width: 1400px; margin: 0 auto; }
     
     /* Tree View Card */
     #tree-card {
@@ -97,7 +114,6 @@
       font-size: 14px;
       text-transform: uppercase;
       outline: none;
-      min-height: 44px;
     }
 
     .search-box button {
@@ -109,11 +125,9 @@
       font-weight: 600;
       font-size: 14px;
       cursor: pointer;
-      min-height: 44px;
     }
-    .search-box button:active { background: #1d4ed8; }
+    .search-box button:hover { background: #1d4ed8; }
 
-    /* Zoom Floating Action Buttons */
     .controls-bar {
       pointer-events: auto;
       display: flex;
@@ -135,14 +149,10 @@
       cursor: pointer; 
       color: #334155; 
       font-size: 14px;
-      min-height: 40px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
     }
-    .ctrl-btn:active { background: #f1f5f9; color: #2563eb; }
+    .ctrl-btn:hover { background: #f1f5f9; color: #2563eb; }
 
-    /* D3 Tree Node Styling */
+    /* Node Tree Styling */
     .node circle { fill: #2563eb; stroke: #1d4ed8; stroke-width: 2px; cursor: pointer; transition: all 0.3s; }
     .node--collapsed circle { fill: #e11d48; stroke: #be123c; }
     
@@ -162,16 +172,44 @@
       background: #ffffff;
       border: 1px solid #e2e8f0;
       border-radius: 12px;
-      padding: 20px;
-      max-width: 650px;
+      padding: 24px;
+      max-width: 680px;
       margin: 0 auto;
       width: 100%;
       box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06);
     }
 
-    #form-card h3 { margin-top: 0; color: #0f172a; font-size: 1.15rem; margin-bottom: 15px; }
+    #form-card h3 { margin-top: 0; color: #0f172a; font-size: 1.2rem; margin-bottom: 15px; text-align: center; }
 
-    .form-group { margin-bottom: 14px; }
+    /* Form Tab Navigation */
+    .form-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 12px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #f1f5f9;
+      color: #475569;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
+    }
+
+    .form-group { margin-bottom: 16px; }
     label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #334155; }
     input, select, textarea {
       width: 100%; 
@@ -179,7 +217,6 @@
       border: 1px solid #cbd5e1;
       border-radius: 8px; 
       font-size: 14px;
-      min-height: 44px;
       background-color: #fff;
     }
 
@@ -196,23 +233,23 @@
       font-weight: 600; 
       cursor: pointer; 
       font-size: 15px;
-      min-height: 48px;
+      transition: background 0.2s;
     }
     button.submit-btn:hover { background-color: #1d4ed8; }
-    #status-msg { margin-top: 12px; text-align: center; font-weight: 600; font-size: 14px; }
+    .status-msg { margin-top: 12px; text-align: center; font-weight: 600; font-size: 14px; }
 
-    /* Disclaimer Card Styling */
+    /* Disclaimer Card */
     .disclaimer-card {
       background-color: #fefce8;
       border: 1px solid #fef08a;
       border-left: 5px solid #eab308;
       border-radius: 10px;
       padding: 16px 20px;
-      margin-top: 20px;
+      max-width: 1400px;
+      margin: 10px auto 0 auto;
       color: #713f12;
       font-size: 13px;
       line-height: 1.6;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
     }
 
     .disclaimer-card strong {
@@ -223,106 +260,39 @@
       color: #854d0e;
       margin-bottom: 6px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
-    /* Container Utama Header */
-    .header-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 20px 16px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    /* Judul Utama */
-    .main-title {
-      font-size: 24px;
-      font-weight: 800;
-      color: #0f172a;
-      margin: 0 0 6px 0;
-      letter-spacing: 1px;
-    }
-
-    /* Sub-judul */
-    .sub-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #334155;
-      margin: 0 0 12px 0;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    /* Deskripsi Teks */
-    .header-description {
-      font-size: 13px;
-      color: #475569;
-      max-width: 620px;
-      line-height: 1.6;
-      margin: 0;
-      font-weight: 400;
-    }
-
-    /* 📱 MOBILE RESPONSIVE MEDIA QUERIES */
+    /* Responsif Mobile */
     @media (max-width: 640px) {
       body { padding: 8px; }
-      h1 { font-size: 1.25rem; }
-      p.subtitle { font-size: 0.85rem; margin-bottom: 10px; }
-      
-      #tree-card { height: 55vh; min-height: 420px; }
-      
-      .toolbar {
-        flex-direction: column;
-        align-items: stretch;
-        top: 10px;
-        left: 10px;
-        right: 10px;
-      }
-
+      #tree-card { height: 50vh; min-height: 400px; }
+      .toolbar { flex-direction: column; align-items: stretch; }
       .search-box { max-width: 100%; }
-
-      .controls-bar {
-        position: absolute;
-        bottom: -430px;
-        right: 0;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      }
-
-      .ctrl-btn {
-        padding: 6px 10px;
-        font-size: 13px;
-        min-height: 36px;
-      }
-
-      #form-card { padding: 15px; }
+      #form-card { padding: 16px; }
+      .form-tabs { flex-direction: column; }
     }
   </style>
 </head>
 <body>
 
-<header class="header-container">
-  <h1 class="main-title">SILSILAH KETURUNAN</h1>
-  <h2 class="sub-title">KI GUSTI NGURAH PANJI SAKTI</h2>
-  <p class="header-description">
-    Mohon kesediaannya untuk melanjutkan pengisian dan atau melengkapi seluruh data yang kurang, agar dapat menyatukan seluruh garis keturunan ke dalam satu silsilah yang utuh dan akurat.
-  </p>
-</header>
+  <header class="header-container">
+    <h1 class="main-title">SILSILAH KETURUNAN</h1>
+    <h2 class="sub-title">KI GUSTI NGURAH PANJI SAKTI</h2>
+    <p class="header-description">
+      Mohon kesediaannya untuk melanjutkan pengisian dan/atau melengkapi seluruh data yang kurang, agar dapat menyatukan seluruh garis keturunan ke dalam satu silsilah yang utuh dan akurat.
+    </p>
+  </header>
 
   <div class="container">
+    <!-- Pohon Silsilah -->
     <div id="tree-card">
       <div class="toolbar">
-        <!-- Search Bar with Auto-Complete -->
         <div class="search-box">
           <input type="text" id="search-input" list="members-list" placeholder="🔍 Cari Nama Anggota..." onkeydown="if(event.key==='Enter') searchMember()">
           <datalist id="members-list"></datalist>
           <button onclick="searchMember()">Cari</button>
         </div>
 
-        <!-- Zoom Controls -->
         <div class="controls-bar">
           <button class="ctrl-btn" onclick="zoomIn()">+</button>
           <button class="ctrl-btn" onclick="zoomOut()">-</button>
@@ -333,29 +303,37 @@
       <div id="tree-container"></div>
     </div>
 
-    <!-- 📝 FORMULIR SESUAI 7 URUTAN BIDANG -->
+    <!-- FORM CARD DENGAN TAB -->
     <div id="form-card">
-      <h3>Tambah Anggota Silsilah (Add Family Member)</h3>
+      <h3>Pengajuan Data Silsilah</h3>
+      
+      <!-- Navigasi Tab 2 Form -->
+      <div class="form-tabs">
+        <button type="button" class="tab-btn active" id="tab-with-parent" onclick="switchForm('with-parent')">
+          1. Tambah Anggota (Ada Orang Tua)
+        </button>
+        <button type="button" class="tab-btn" id="tab-no-parent" onclick="switchForm('no-parent')">
+          2. Tambah Orang Tua / Leluhur (Tanpa Parent ID)
+        </button>
+      </div>
+
+      <!-- FORM 1: Dengan Parent ID -->
       <form id="family-form">
-        <!-- 1. Generasi ke- (Generation) -->
         <div class="form-group">
           <label for="generation">1. Generasi ke- (Generation)</label>
           <input type="text" id="generation" placeholder="Contoh: 1, 2, 3, 7...">
         </div>
 
-        <!-- 2. Nama Lengkap & Gelar * -->
         <div class="form-group">
           <label for="full_name">2. Nama Lengkap & Gelar *</label>
           <input type="text" id="full_name" class="uppercase-input" required placeholder="CONTOH: KI GUSTI ALIT PANJI">
         </div>
 
-        <!-- 3. Nama Pasangan (Spouse Name) -->
         <div class="form-group">
           <label for="spouse_name">3. Nama Pasangan (Spouse Name)</label>
           <input type="text" id="spouse_name" class="uppercase-input" placeholder="CONTOH: NI NIANG DEN BUKIT">
         </div>
 
-        <!-- 4. Pilih Orang Tua (Select Parent) * -->
         <div class="form-group">
           <label for="parent_id">4. Pilih Orang Tua (Select Parent) *</label>
           <select id="parent_id" required>
@@ -363,26 +341,53 @@
           </select>
         </div>
 
-        <!-- 5. Nama Pasangan Orang Tua (Parent Spouse Name) -->
         <div class="form-group">
           <label for="parent_spouse_name">5. Nama Pasangan Orang Tua (Parent Spouse Name)</label>
           <input type="text" id="parent_spouse_name" class="uppercase-input" placeholder="CONTOH: NI GUSTI AYU...">
         </div>
 
-        <!-- 6. Anak Keberapa (Child Order) -->
         <div class="form-group">
           <label for="child_order">6. Anak Keberapa (Child Order)</label>
           <input type="text" id="child_order" placeholder="Contoh: 1, 2, 3...">
         </div>
 
-        <!-- 7. Catatan Sejarah / Biografi Short / Lokasi -->
         <div class="form-group">
           <label for="notes">7. Catatan Sejarah / Biografi Short / Lokasi</label>
           <textarea id="notes" rows="3" class="uppercase-input" placeholder="CONTOH: DI SUKASADA..."></textarea>
         </div>
 
-        <button type="submit" class="submit-btn" id="submit-btn">Kirim untuk Ditinjau (Submit Member)</button>
-        <p id="status-msg"></p>
+        <button type="submit" class="submit-btn">Kirim untuk Ditinjau (Submit Member)</button>
+        <p class="status-msg" id="status-msg-1"></p>
+      </form>
+
+      <!-- FORM 2: Tanpa Parent ID (Khusus Orang Tua / Leluhur Baru) -->
+      <form id="parent-form" style="display: none;">
+        <p style="font-size: 13px; color: #64748b; margin-top: 0; margin-bottom: 15px;">
+          ℹ️ Gunakan formulir ini jika Anda ingin mendaftarkan **Orang Tua / Leluhur** yang namanya **belum terdaftar** di silsilah (belum memiliki Parent ID).
+        </p>
+
+        <div class="form-group">
+          <label for="p_generation">1. Generasi ke- (Generation)</label>
+          <input type="text" id="p_generation" placeholder="Contoh: 1, 2, 3...">
+        </div>
+
+        <div class="form-group">
+          <label for="p_full_name">2. Nama Lengkap & Gelar Orang Tua / Leluhur *</label>
+          <input type="text" id="p_full_name" class="uppercase-input" required placeholder="CONTOH: KI GUSTI NGURAH PANJI SAKTI">
+        </div>
+
+        <div class="form-group">
+          <label for="p_spouse_name">3. Nama Pasangan (Spouse Name)</label>
+          <input type="text" id="p_spouse_name" class="uppercase-input" placeholder="CONTOH: NI GUSTI AYU...">
+        </div>
+
+        <div class="form-group">
+          <label for="p_notes">4. Catatan Sejarah / Biografi Short / Lokasi</label>
+          <textarea id="p_notes" rows="3" class="uppercase-input" placeholder="CONTOH: LELUHUR DARI SUKASADA..."></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">Kirim Data Orang Tua / Leluhur (Submit Parent)</button>
+        <p class="status-msg" id="status-msg-2"></p>
       </form>
     </div>
   </div>
@@ -396,26 +401,42 @@
   </div>
 
   <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwf-iqct0VYw-CJ31wEK7UYzPvXrQWkgoOyxSYdaXcZdQ28E95ts2LDKbacYeiJWiYn/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5Fd73H8KTrfMo5z2n7VHr_aEfu92qQXcgomoxfCYekGDO-X9XuxFk8RGjzbMP3DP_/exec";
 
     let svg, g, zoomBehavior, rootData, d3Hierarchy;
     let i = 0;
     let rawMembersList = [];
 
+    // FUNGSI GANTI TAB FORMULIR
+    function switchForm(formType) {
+      const formWithParent = document.getElementById("family-form");
+      const formNoParent = document.getElementById("parent-form");
+      const btnWithParent = document.getElementById("tab-with-parent");
+      const btnNoParent = document.getElementById("tab-no-parent");
+
+      if (formType === 'with-parent') {
+        formWithParent.style.display = "block";
+        formNoParent.style.display = "none";
+        btnWithParent.classList.add("active");
+        btnNoParent.classList.remove("active");
+      } else {
+        formWithParent.style.display = "none";
+        formNoParent.style.display = "block";
+        btnWithParent.classList.remove("active");
+        btnNoParent.classList.add("active");
+      }
+    }
+
     async function loadFamilyData() {
       const treeContainer = document.getElementById("tree-container");
-      treeContainer.innerHTML = "<p style='text-align:center; padding-top: 300px; color: #64748b;'>Memuat Silsilah dari Google Sheets...</p>";
+      treeContainer.innerHTML = "<p style='text-align:center; padding-top: 280px; color: #64748b;'>Memuat Silsilah dari Google Sheets...</p>";
 
       try {
         const response = await fetch(GOOGLE_SCRIPT_URL);
         const data = await response.json();
 
         if (!Array.isArray(data) || data.length === 0) {
-          treeContainer.innerHTML = `
-            <div class="notice" style="margin: 40px;">
-              ⚠️ <strong>Tidak ada data silsilah ditemukan.</strong><br>
-              Pastikan sheet bernama <code>Approved_Members</code> diisi dengan benar.
-            </div>`;
+          treeContainer.innerHTML = "<p style='text-align:center; padding-top: 280px; color: #dc2626;'>Tidak ada data silsilah ditemukan pada sheet Approved_Members.</p>";
           return;
         }
 
@@ -426,19 +447,11 @@
         if (rootData) {
           initD3Tree(rootData);
         } else {
-          treeContainer.innerHTML = `
-            <div class="notice" style="margin: 40px;">
-              ⚠️ <strong>Gagal menyusun hierarki silsilah.</strong><br>
-              Pastikan Leluhur Utama (Panji Sakti) memiliki ID (seperti <code>P001</code>) dan kolom <code>parent_id</code> dikosongkan.
-            </div>`;
+          treeContainer.innerHTML = "<p style='text-align:center; padding-top: 280px; color: #dc2626;'>Gagal menyusun hierarki. Pastikan data memiliki akar utama (misal: Panji Sakti).</p>";
         }
       } catch (err) {
         console.error("Error loading tree:", err);
-        treeContainer.innerHTML = `
-          <div class="notice" style="margin: 40px;">
-            ⚠️ <strong>Tidak dapat terhubung ke Google Apps Script API.</strong><br>
-            Periksa kembali pengaturan deployment Web App Anda.
-          </div>`;
+        treeContainer.innerHTML = "<p style='text-align:center; padding-top: 280px; color: #dc2626;'>Gagal terhubung ke Google Apps Script Web App.</p>";
       }
     }
 
@@ -454,13 +467,11 @@
           const nameUpper = String(member.full_name).toUpperCase();
           const genLower = String(member.generation || '-').toLowerCase();
           
-          // Form Parent Dropdown
           const opt = document.createElement("option");
           opt.value = member.id;
-          opt.textContent = `${nameUpper} (gen: ${genLower})`;
+          opt.textContent = `${nameUpper} (Gen: ${genLower})`;
           select.appendChild(opt);
 
-          // Search Datalist Auto-complete
           const listOpt = document.createElement("option");
           listOpt.value = nameUpper;
           datalist.appendChild(listOpt);
@@ -542,7 +553,6 @@
 
       nodes.forEach(d => { d.y = d.depth * 280; });
 
-      // --- NODES ---
       const node = g.selectAll('g.node')
         .data(nodes, d => d.id || (d.id = ++i));
 
@@ -562,13 +572,11 @@
 
       nodeEnter.append('circle').attr('r', 6);
 
-      // Full Name (UPPERCASE)
       nodeEnter.append('text')
         .attr('dy', '-0.35em')
         .attr('x', 14)
         .text(d => String(d.data.full_name || 'UNNAMED').toUpperCase());
 
-      // Details Subtitle
       nodeEnter.append('text')
         .attr('class', 'details')
         .attr('dy', '1.15em')
@@ -578,7 +586,7 @@
           const childOrd = d.data.child_order ? ` | Anak ke-${d.data.child_order}` : '';
           const spouse = d.data.spouse_name ? ` | Pasangan: ${String(d.data.spouse_name).toUpperCase()}` : '';
           const note = d.data.notes ? ` | ${String(d.data.notes).toUpperCase()}` : '';
-          return `gen: ${gen}${childOrd}${spouse}${note}`;
+          return `Gen: ${gen}${childOrd}${spouse}${note}`;
         });
 
       const nodeUpdate = nodeEnter.merge(node);
@@ -593,7 +601,6 @@
 
       nodeExit.select('circle').attr('r', 1e-6);
 
-      // --- LINKS ---
       const link = g.selectAll('path.link')
         .data(links, d => d.target.id);
 
@@ -629,7 +636,6 @@
                 ${d.y} ${d.x}`;
     }
 
-    // --- SEARCH FUNCTION ---
     function searchMember() {
       const query = document.getElementById("search-input").value.trim().toUpperCase();
       if (!query) return;
@@ -673,7 +679,6 @@
       );
     }
 
-    // Zoom Button Handlers
     function zoomIn() { svg.transition().duration(300).call(zoomBehavior.scaleBy, 1.3); }
     function zoomOut() { svg.transition().duration(300).call(zoomBehavior.scaleBy, 0.7); }
     function resetZoom() {
@@ -681,25 +686,23 @@
       svg.transition().duration(400).call(zoomBehavior.transform, d3.zoomIdentity.translate(120, height / 2).scale(0.85));
     }
 
-    // --- FORM SUBMISSION WITH DUPLICATE CHECK ---
+    // --- HANDLER SUBMIT FORM 1 (Ada Parent ID) ---
     document.getElementById("family-form").addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const inputGen = document.getElementById("generation").value.trim().toLowerCase();
       const inputName = document.getElementById("full_name").value.trim().toUpperCase();
-      const statusMsg = document.getElementById("status-msg");
+      const statusMsg = document.getElementById("status-msg-1");
 
-      // 🔍 Duplicate Check: Match both Name AND Generation
       const duplicateFound = rawMembersList.some(member => {
         const existingName = String(member.full_name || "").trim().toUpperCase();
         const existingGen = String(member.generation || "").trim().toLowerCase();
         return existingName === inputName && existingGen === inputGen;
       });
 
-      // ⚠️ Warning Popup if Duplicate Found
       if (duplicateFound) {
         const proceed = confirm(
-          `⚠️ PERINGATAN DUPLIKAT!\n\nNama "${inputName}" di Generasi "${inputGen}" SUDAH ADA dalam silsilah.\n\nApakah Anda yakin tetap ingin mendaftarkan nama ini lagi?`
+          `⚠️ PERINGATAN DUPLIKAT!\n\nNama "${inputName}" pada Generasi "${inputGen}" SUDAH ADA dalam silsilah.\n\nApakah Anda yakin tetap ingin mendaftarkan nama ini lagi?`
         );
         if (!proceed) {
           statusMsg.style.color = "#dc2626";
@@ -711,7 +714,6 @@
       statusMsg.style.color = "#2563eb";
       statusMsg.textContent = "Mengirim data ke Google Sheet...";
 
-      // Payload disesuaikan presisi 7 urutan bidang
       const payload = {
         generation: inputGen,
         full_name: inputName,
@@ -731,7 +733,7 @@
         });
 
         statusMsg.style.color = "#16a34a";
-        statusMsg.textContent = "✅ Berhasil dikirim! Data menunggu persetujuan admin di Google Sheet & notifikasi dikirim ke Gmail.";
+        statusMsg.textContent = "✅ Berhasil dikirim! Data akan ditinjau oleh pengelola silsilah.";
         document.getElementById("family-form").reset();
       } catch (err) {
         statusMsg.style.color = "#dc2626";
@@ -739,6 +741,62 @@
       }
     });
 
+    // --- HANDLER SUBMIT FORM 2 (Tanpa Parent ID) ---
+    document.getElementById("parent-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const inputGen = document.getElementById("p_generation").value.trim().toLowerCase();
+      const inputName = document.getElementById("p_full_name").value.trim().toUpperCase();
+      const statusMsg = document.getElementById("status-msg-2");
+
+      const duplicateFound = rawMembersList.some(member => {
+        const existingName = String(member.full_name || "").trim().toUpperCase();
+        const existingGen = String(member.generation || "").trim().toLowerCase();
+        return existingName === inputName && existingGen === inputGen;
+      });
+
+      if (duplicateFound) {
+        const proceed = confirm(
+          `⚠️ PERINGATAN DUPLIKAT!\n\nNama "${inputName}" pada Generasi "${inputGen}" SUDAH ADA dalam silsilah.\n\nApakah Anda yakin tetap ingin mendaftarkan nama ini lagi?`
+        );
+        if (!proceed) {
+          statusMsg.style.color = "#dc2626";
+          statusMsg.textContent = "❌ Pengiriman dibatalkan. Data sudah ada di silsilah.";
+          return;
+        }
+      }
+
+      statusMsg.style.color = "#2563eb";
+      statusMsg.textContent = "Mengirim data Orang Tua / Leluhur...";
+
+      const payload = {
+        generation: inputGen,
+        full_name: inputName,
+        spouse_name: document.getElementById("p_spouse_name").value.trim().toUpperCase(),
+        parent_id: "", // Dikosongkan karena belum memiliki Parent ID
+        parent_spouse_name: "",
+        child_order: "",
+        notes: document.getElementById("p_notes").value.trim().toUpperCase()
+      };
+
+      try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        statusMsg.style.color = "#16a34a";
+        statusMsg.textContent = "✅ Berhasil dikirim! Data Orang Tua / Leluhur akan ditinjau oleh pengelola.";
+        document.getElementById("parent-form").reset();
+      } catch (err) {
+        statusMsg.style.color = "#dc2626";
+        statusMsg.textContent = "Gagal mengirim: " + err.message;
+      }
+    });
+
+    // Jalankan Pemuatan Data Pertama Kali
     loadFamilyData();
   </script>
 </body>
