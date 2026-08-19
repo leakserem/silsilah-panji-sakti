@@ -83,7 +83,7 @@
       position: relative;
       overflow: hidden;
       box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06);
-      height: 650px;
+      height: 700px;
     }
 
     #tree-container { width: 100%; height: 100%; background-color: #fafafa; cursor: grab; }
@@ -464,7 +464,7 @@
       <!-- FORM 2: Tanpa Parent ID -->
       <form id="parent-form" style="display: none;">
         <p style="font-size: 13px; color: #64748b; margin-top: 0; margin-bottom: 15px;">
-          ℹ️ Gunakan formulir ini jika Anda ingin mendaftarkan **Orang Tua / Leluhur** yang namanya **belum terdaftar** di silsilah (belum memiliki Parent ID).
+          ℹ️ Gunakan formulir ini jika Anda ingin mendaftarkan <b>Orang Tua / Leluhur</b> yang namanya <b>belum terdaftar</b> di silsilah (belum memiliki Parent ID).
         </p>
 
         <div class="form-group">
@@ -592,7 +592,6 @@
     function applyCrop() {
       if (!cropper) return;
 
-      // Crop Canvas Ukuran 120x120 px
       const canvas = cropper.getCroppedCanvas({
         width: 120,
         height: 120,
@@ -600,16 +599,13 @@
         imageSmoothingQuality: 'high',
       });
 
-      // Konversi Ke Format WebP Kualitas 60%
       const compressedBase64 = canvas.toDataURL('image/webp', 0.6);
       document.getElementById(currentInputContext.hiddenInputId).value = compressedBase64;
 
-      // Hitung Estimasi Ukuran KB
       const stringLength = compressedBase64.length - 'data:image/webp;base64,'.length;
       const sizeInBytes = 4 * Math.ceil(stringLength / 3) * 0.5624896;
       const sizeInKB = (sizeInBytes / 1024).toFixed(2);
 
-      // Set Pratinjau
       const previewImg = document.getElementById(currentInputContext.previewId);
       previewImg.src = compressedBase64;
       document.getElementById(currentInputContext.infoId).textContent = `✅ Wajah Dipotong (${sizeInKB} KB)`;
@@ -744,13 +740,19 @@
     }
 
     function updateTree(source) {
-      const treeLayout = d3.tree().nodeSize([45, 280]);
+      // 💡 SPACING ANTARELEMENT DITINGKATKAN:
+      // STEP_X = 65 (Jarak Vertikal antar saudara)
+      // STEP_Y = 550 (Jarak Horizontal antar Generasi untuk mencegah tulisan menumpuk)
+      const STEP_X = 65;
+      const STEP_Y = 550;
+      
+      const treeLayout = d3.tree().nodeSize([STEP_X, STEP_Y]);
       const treeData = treeLayout(d3Hierarchy);
 
       const nodes = treeData.descendants();
       const links = treeData.links();
 
-      nodes.forEach(d => { d.y = d.depth * 280; });
+      nodes.forEach(d => { d.y = d.depth * STEP_Y; });
 
       const node = g.selectAll('g.node')
         .data(nodes, d => d.id || (d.id = ++i));
@@ -769,31 +771,33 @@
           updateTree(d);
         });
 
-      // Render Foto Profil Lingkaran / Node Biasa
+      // Render Foto Profil Lingkaran atau Node Biasa
       nodeEnter.each(function(d) {
         const gNode = d3.select(this);
-        if (d.data.photo_url && String(d.data.photo_url).startsWith('data:image')) {
+        const pUrl = String(d.data.photo_url || "").trim();
+        
+        if (pUrl && (pUrl.startsWith('data:image') || pUrl.startsWith('http'))) {
           gNode.append("image")
-            .attr("xlink:href", d.data.photo_url)
-            .attr("x", -15)
-            .attr("y", -15)
-            .attr("width", 30)
-            .attr("height", 30)
-            .attr("style", "clip-path: circle(15px at 15px 15px); border-radius: 50%;");
+            .attr("xlink:href", pUrl)
+            .attr("x", -16)
+            .attr("y", -16)
+            .attr("width", 32)
+            .attr("height", 32)
+            .attr("style", "clip-path: circle(16px at 16px 16px); border-radius: 50%;");
         } else {
-          gNode.append("circle").attr("r", 6);
+          gNode.append("circle").attr("r", 7);
         }
       });
 
       nodeEnter.append('text')
         .attr('dy', '-0.35em')
-        .attr('x', 18)
+        .attr('x', 22)
         .text(d => String(d.data.full_name || 'UNNAMED').toUpperCase());
 
       nodeEnter.append('text')
         .attr('class', 'details')
-        .attr('dy', '1.15em')
-        .attr('x', 18)
+        .attr('dy', '1.25em')
+        .attr('x', 22)
         .text(d => {
           const gen = String(d.data.generation || '-').toLowerCase();
           const childOrd = d.data.child_order ? ` | Anak ke-${d.data.child_order}` : '';
@@ -1022,7 +1026,7 @@
       });
     }
 
-    // Load Data
+    // Load Data Utama
     loadFamilyData();
   </script>
 </body>
