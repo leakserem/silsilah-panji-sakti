@@ -16,7 +16,6 @@
   <meta property="og:url" content="https://silsilah.web.id/">
   <meta property="og:title" content="Silsilah Keturunan Ki Gusti Ngurah Panji Sakti">
   <meta property="og:description" content="Situs silsilah keluarga interaktif Ki Gusti Ngurah Panji Sakti. Jelajahi garis keturunan dan silsilah keluarga secara langsung.">
-  <meta property="og:image" content="https://silsilah.web.id/og-image.png">
 
   <!-- PWA Manifest & iOS Support -->
   <link rel="manifest" href="/manifest.json">
@@ -83,7 +82,7 @@
       position: relative;
       overflow: hidden;
       box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06);
-      height: 700px;
+      height: 720px;
     }
 
     #tree-container { width: 100%; height: 100%; background-color: #fafafa; cursor: grab; }
@@ -174,8 +173,6 @@
       filter: drop-shadow(0 0 6px #f59e0b);
     }
 
-    .node text { font-size: 13px; font-weight: 700; fill: #0f172a; text-shadow: 0 1px 2px white; text-transform: uppercase; }
-    .node .details { font-size: 11px; fill: #64748b; font-weight: normal; text-transform: none; }
     .link { fill: none; stroke: #cbd5e1; stroke-width: 2px; }
 
     /* Form Styling */
@@ -355,7 +352,7 @@
     /* Responsif Mobile */
     @media (max-width: 640px) {
       body { padding: 8px; }
-      #tree-card { height: 50vh; min-height: 400px; }
+      #tree-card { height: 55vh; min-height: 420px; }
       .toolbar { flex-direction: column; align-items: stretch; }
       .search-box { max-width: 100%; }
       #form-card { padding: 16px; }
@@ -528,7 +525,7 @@
   </div>
 
   <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3hguQygh4qUdMh58QK7WFfenBk81_JSl-n66isy6AgXk9T-F-gjjlFMbXDhPPkvCw/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwI31IEJsaFdc-4mGs-W2-fwaSlz1ClVqOkYHa7Wl-t1HrWLR3FRLt5RKwQc5Vi3wRM/exec";
 
     let svg, g, zoomBehavior, rootData, d3Hierarchy;
     let i = 0;
@@ -740,11 +737,11 @@
     }
 
     function updateTree(source) {
-      // 💡 SPACING ANTARELEMENT DITINGKATKAN:
-      // STEP_X = 65 (Jarak Vertikal antar saudara)
-      // STEP_Y = 550 (Jarak Horizontal antar Generasi untuk mencegah tulisan menumpuk)
-      const STEP_X = 65;
-      const STEP_Y = 550;
+      // 💡 SPACING OTOMATIS & MULTI-LINE TEXT UNTUK MENCEGAH TULISAN MENUMPUK:
+      // STEP_X = 80px (Jarak vertikal antar saudara)
+      // STEP_Y = 480px (Jarak horizontal antar generasi)
+      const STEP_X = 80;
+      const STEP_Y = 480;
       
       const treeLayout = d3.tree().nodeSize([STEP_X, STEP_Y]);
       const treeData = treeLayout(d3Hierarchy);
@@ -779,31 +776,52 @@
         if (pUrl && (pUrl.startsWith('data:image') || pUrl.startsWith('http'))) {
           gNode.append("image")
             .attr("xlink:href", pUrl)
-            .attr("x", -16)
-            .attr("y", -16)
-            .attr("width", 32)
-            .attr("height", 32)
-            .attr("style", "clip-path: circle(16px at 16px 16px); border-radius: 50%;");
+            .attr("x", -18)
+            .attr("y", -18)
+            .attr("width", 36)
+            .attr("height", 36)
+            .attr("style", "clip-path: circle(18px at 18px 18px); border-radius: 50%;");
         } else {
-          gNode.append("circle").attr("r", 7);
+          gNode.append("circle").attr("r", 8);
         }
       });
 
-      nodeEnter.append('text')
-        .attr('dy', '-0.35em')
-        .attr('x', 22)
+      // RENDER TEKS MULTI-LINE (Mencegah Penumpukan Teks Memanjang)
+      const textGroup = nodeEnter.append('text')
+        .attr('x', 24)
+        .attr('y', 0);
+
+      // BARIS 1: NAMA LENGKAP & GELAR (TEBAL & KAPITAL)
+      textGroup.append('tspan')
+        .attr('x', 24)
+        .attr('dy', '-0.6em')
+        .attr('font-weight', '700')
+        .attr('font-size', '13px')
+        .attr('fill', '#0f172a')
         .text(d => String(d.data.full_name || 'UNNAMED').toUpperCase());
 
-      nodeEnter.append('text')
-        .attr('class', 'details')
+      // BARIS 2: GENERASI & ANAK KE
+      textGroup.append('tspan')
+        .attr('x', 24)
         .attr('dy', '1.25em')
-        .attr('x', 22)
+        .attr('font-size', '11px')
+        .attr('fill', '#475569')
         .text(d => {
           const gen = String(d.data.generation || '-').toLowerCase();
           const childOrd = d.data.child_order ? ` | Anak ke-${d.data.child_order}` : '';
-          const spouse = d.data.spouse_name ? ` | Pasangan: ${String(d.data.spouse_name).toUpperCase()}` : '';
-          const note = d.data.notes ? ` | ${String(d.data.notes).toUpperCase()}` : '';
-          return `Gen: ${gen}${childOrd}${spouse}${note}`;
+          return `Gen: ${gen}${childOrd}`;
+        });
+
+      // BARIS 3: PASANGAN & CATATAN
+      textGroup.append('tspan')
+        .attr('x', 24)
+        .attr('dy', '1.25em')
+        .attr('font-size', '11px')
+        .attr('fill', '#64748b')
+        .text(d => {
+          const spouse = d.data.spouse_name ? `Pasangan: ${String(d.data.spouse_name).toUpperCase()}` : '';
+          const note = d.data.notes ? `${spouse ? ' | ' : ''}${String(d.data.notes).toUpperCase()}` : '';
+          return (spouse || note) ? `${spouse}${note}` : '';
         });
 
       const nodeUpdate = nodeEnter.merge(node);
