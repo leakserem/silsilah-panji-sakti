@@ -387,39 +387,39 @@
       <form id="family-form">
         <div class="form-group">
           <label for="generation">1. Generasi ke- (Generation)</label>
-          <input type="text" id="generation" placeholder="Contoh: 1, 2, 3, 7...">
+          <input type="text" id="generation" name="generation" placeholder="Contoh: 1, 2, 3, 7...">
         </div>
 
         <div class="form-group">
           <label for="full_name">2. Nama Lengkap & Gelar *</label>
-          <input type="text" id="full_name" class="uppercase-input" required placeholder="CONTOH: KI GUSTI ALIT PANJI">
+          <input type="text" id="full_name" name="full_name" class="uppercase-input" required placeholder="CONTOH: KI GUSTI ALIT PANJI">
         </div>
 
         <div class="form-group">
           <label for="spouse_name">3. Nama Pasangan (Spouse Name)</label>
-          <input type="text" id="spouse_name" class="uppercase-input" placeholder="CONTOH: NI NIANG DEN BUKIT">
+          <input type="text" id="spouse_name" name="spouse_name" class="uppercase-input" placeholder="CONTOH: NI NIANG DEN BUKIT">
         </div>
 
         <div class="form-group">
           <label for="parent_id">4. Pilih Orang Tua (Select Parent) *</label>
-          <select id="parent_id" required>
+          <select id="parent_id" name="parent_id" required>
             <option value="">-- Pilih Orang Tua --</option>
           </select>
         </div>
 
         <div class="form-group">
           <label for="parent_spouse_name">5. Nama Pasangan Orang Tua (Parent Spouse Name)</label>
-          <input type="text" id="parent_spouse_name" class="uppercase-input" placeholder="CONTOH: NI GUSTI AYU...">
+          <input type="text" id="parent_spouse_name" name="parent_spouse_name" class="uppercase-input" placeholder="CONTOH: NI GUSTI AYU...">
         </div>
 
         <div class="form-group">
           <label for="child_order">6. Anak Keberapa (Child Order)</label>
-          <input type="text" id="child_order" placeholder="Contoh: 1, 2, 3...">
+          <input type="text" id="child_order" name="child_order" placeholder="Contoh: 1, 2, 3...">
         </div>
 
         <div class="form-group">
           <label for="notes">7. Catatan Sejarah / Biografi Short / Lokasi</label>
-          <textarea id="notes" rows="3" class="uppercase-input" placeholder="CONTOH: DI SUKASADA..."></textarea>
+          <textarea id="notes" name="notes" rows="3" class="uppercase-input" placeholder="CONTOH: DI SUKASADA..."></textarea>
         </div>
 
         <div class="form-group">
@@ -443,22 +443,22 @@
 
         <div class="form-group">
           <label for="p_generation">1. Generasi ke- (Generation)</label>
-          <input type="text" id="p_generation" placeholder="Contoh: 1, 2, 3...">
+          <input type="text" id="p_generation" name="p_generation" placeholder="Contoh: 1, 2, 3...">
         </div>
 
         <div class="form-group">
           <label for="p_full_name">2. Nama Lengkap & Gelar Orang Tua / Leluhur *</label>
-          <input type="text" id="p_full_name" class="uppercase-input" required placeholder="CONTOH: KI GUSTI NGURAH PANJI SAKTI">
+          <input type="text" id="p_full_name" name="p_full_name" class="uppercase-input" required placeholder="CONTOH: KI GUSTI NGURAH PANJI SAKTI">
         </div>
 
         <div class="form-group">
           <label for="p_spouse_name">3. Nama Pasangan (Spouse Name)</label>
-          <input type="text" id="p_spouse_name" class="uppercase-input" placeholder="CONTOH: NI GUSTI AYU...">
+          <input type="text" id="p_spouse_name" name="p_spouse_name" class="uppercase-input" placeholder="CONTOH: NI GUSTI AYU...">
         </div>
 
         <div class="form-group">
           <label for="p_notes">4. Catatan Sejarah / Biografi Short / Lokasi</label>
-          <textarea id="p_notes" rows="3" class="uppercase-input" placeholder="CONTOH: LELUHUR DARI SUKASADA..."></textarea>
+          <textarea id="p_notes" name="p_notes" rows="3" class="uppercase-input" placeholder="CONTOH: LELUHUR DARI SUKASADA..."></textarea>
         </div>
 
         <div class="form-group">
@@ -707,7 +707,6 @@
       }
     }
 
-    // 💡 FUNGSI BANTU PEMOTONG TEKS (WORD WRAP CHUNKER)
     function appendWrappedText(selection, text, maxChars, x, dy, fontSize, fill, fontWeight) {
       if (!text) return;
       const words = text.split(' ');
@@ -744,9 +743,6 @@
     }
 
     function updateTree(source) {
-      // SPACING NODE:
-      // STEP_X = 110px (Jarak vertikal antar-saudara ditingkatkan agar teks multi-line muat rapi)
-      // STEP_Y = 460px (Jarak horizontal antar-generasi)
       const STEP_X = 110;
       const STEP_Y = 460;
       
@@ -775,7 +771,6 @@
           updateTree(d);
         });
 
-      // Render Foto Profil Lingkaran / Circle
       nodeEnter.each(function(d) {
         const gNode = d3.select(this);
         const pUrl = String(d.data.photo_url || "").trim();
@@ -793,28 +788,23 @@
         }
       });
 
-      // RENDER TEKS DENGAN AUTOMATIC WORD-WRAP (MAX ~35 KARAKTER)
       nodeEnter.each(function(d) {
         const gNode = d3.select(this);
         const textGroup = gNode.append('text').attr('x', 26).attr('y', 0);
 
-        // BARIS 1: NAMA LENGKAP & GELAR
         const nameText = String(d.data.full_name || 'UNNAMED').toUpperCase();
         appendWrappedText(textGroup, nameText, 35, 26, '-0.8em', '13px', '#0f172a', '700');
 
-        // BARIS 2: GENERASI & ANAK KE
         const gen = String(d.data.generation || '-').toLowerCase();
         const childOrd = d.data.child_order ? ` | Anak ke-${d.data.child_order}` : '';
         const genText = `Gen: ${gen}${childOrd}`;
         appendWrappedText(textGroup, genText, 35, 26, '1.25em', '11px', '#475569', '400');
 
-        // BARIS 3: PASANGAN (JIKA ADA)
         if (d.data.spouse_name) {
           const spouseText = `Pasangan: ${String(d.data.spouse_name).toUpperCase()}`;
           appendWrappedText(textGroup, spouseText, 35, 26, '1.2em', '11px', '#64748b', '400');
         }
 
-        // BARIS 4: CATATAN SEJARAH / BIOGRAFI (DIPOTONG KE BARIS BAWAH JIKA PANJANG)
         if (d.data.notes) {
           const noteText = String(d.data.notes).toUpperCase();
           appendWrappedText(textGroup, noteText, 35, 26, '1.2em', '11px', '#64748b', '400');
@@ -911,30 +901,30 @@
       );
     }
 
-    function zoomIn() { svg.transition().duration(300).call(zoomBehavior.scaleBy, 1.3); }
-    function zoomOut() { svg.transition().duration(300).call(zoomBehavior.scaleBy, 0.7); }
-    function resetZoom() {
-      const height = document.getElementById("tree-container").clientHeight;
-      svg.transition().duration(400).call(zoomBehavior.transform, d3.zoomIdentity.translate(120, height / 2).scale(0.85));
-    }
-
+    // PENGIRIMAN FORM 1 (SUDAH DIKUNCI EKSPLISIT BERDASARKAN ID INPUT)
     document.getElementById("family-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-
-      const inputGen = document.getElementById("generation").value.trim().toLowerCase();
-      const inputName = document.getElementById("full_name").value.trim().toUpperCase();
       const statusMsg = document.getElementById("status-msg-1");
+
+      const payload = {
+        generation: document.getElementById("generation").value.trim().toLowerCase(),
+        full_name: document.getElementById("full_name").value.trim().toUpperCase(),
+        spouse_name: document.getElementById("spouse_name").value.trim().toUpperCase(),
+        parent_id: document.getElementById("parent_id").value,
+        parent_spouse_name: document.getElementById("parent_spouse_name").value.trim().toUpperCase(),
+        child_order: document.getElementById("child_order").value.trim(),
+        notes: document.getElementById("notes").value.trim().toUpperCase(),
+        photo_url: document.getElementById("photo_url_1").value
+      };
 
       const duplicateFound = rawMembersList.some(member => {
         const existingName = String(member.full_name || "").trim().toUpperCase();
         const existingGen = String(member.generation || "").trim().toLowerCase();
-        return existingName === inputName && existingGen === inputGen;
+        return existingName === payload.full_name && existingGen === payload.generation;
       });
 
       if (duplicateFound) {
-        const proceed = confirm(
-          `⚠️ PERINGATAN DUPLIKAT!\n\nNama "${inputName}" pada Generasi "${inputGen}" SUDAH ADA dalam silsilah.\n\nApakah Anda yakin tetap ingin mendaftarkan nama ini lagi?`
-        );
+        const proceed = confirm(`⚠️ PERINGATAN DUPLIKAT!\n\nNama "${payload.full_name}" pada Generasi "${payload.generation}" SUDAH ADA dalam silsilah.\n\nApakah Anda yakin tetap ingin mendaftarkan nama ini lagi?`);
         if (!proceed) {
           statusMsg.style.color = "#dc2626";
           statusMsg.textContent = "❌ Pengiriman dibatalkan. Data sudah ada di silsilah.";
@@ -944,17 +934,6 @@
 
       statusMsg.style.color = "#2563eb";
       statusMsg.textContent = "Mengirim data dan foto ke Google Sheet...";
-
-      const payload = {
-        generation: inputGen,
-        full_name: inputName,
-        spouse_name: document.getElementById("spouse_name").value.trim().toUpperCase(),
-        parent_id: document.getElementById("parent_id").value,
-        parent_spouse_name: document.getElementById("parent_spouse_name").value.trim().toUpperCase(),
-        child_order: document.getElementById("child_order").value.trim(),
-        notes: document.getElementById("notes").value.trim().toUpperCase(),
-        photo_url: document.getElementById("photo_url_1").value
-      };
 
       try {
         await fetch(GOOGLE_SCRIPT_URL, {
@@ -974,23 +953,30 @@
       }
     });
 
+    // PENGIRIMAN FORM 2
     document.getElementById("parent-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-
-      const inputGen = document.getElementById("p_generation").value.trim().toLowerCase();
-      const inputName = document.getElementById("p_full_name").value.trim().toUpperCase();
       const statusMsg = document.getElementById("status-msg-2");
+
+      const payload = {
+        generation: document.getElementById("p_generation").value.trim().toLowerCase(),
+        full_name: document.getElementById("p_full_name").value.trim().toUpperCase(),
+        spouse_name: document.getElementById("p_spouse_name").value.trim().toUpperCase(),
+        parent_id: "",
+        parent_spouse_name: "",
+        child_order: "",
+        notes: document.getElementById("p_notes").value.trim().toUpperCase(),
+        photo_url: document.getElementById("photo_url_2").value
+      };
 
       const duplicateFound = rawMembersList.some(member => {
         const existingName = String(member.full_name || "").trim().toUpperCase();
         const existingGen = String(member.generation || "").trim().toLowerCase();
-        return existingName === inputName && existingGen === inputGen;
+        return existingName === payload.full_name && existingGen === payload.generation;
       });
 
       if (duplicateFound) {
-        const proceed = confirm(
-          `⚠️ PERINGATAN DUPLIKAT!\n\nNama "${inputName}" pada Generasi "${inputGen}" SUDAH ADA dalam silsilah.\n\nApakah Anda yakin tetap ingin mendaftarkan nama ini lagi?`
-        );
+        const proceed = confirm(`⚠️ PERINGATAN DUPLIKAT!\n\nNama "${payload.full_name}" pada Generasi "${payload.generation}" SUDAH ADA dalam silsilah.\n\nApakah Anda yakin tetap ingin mendaftarkan nama ini lagi?`);
         if (!proceed) {
           statusMsg.style.color = "#dc2626";
           statusMsg.textContent = "❌ Pengiriman dibatalkan. Data sudah ada di silsilah.";
@@ -1000,17 +986,6 @@
 
       statusMsg.style.color = "#2563eb";
       statusMsg.textContent = "Mengirim data Orang Tua / Leluhur...";
-
-      const payload = {
-        generation: inputGen,
-        full_name: inputName,
-        spouse_name: document.getElementById("p_spouse_name").value.trim().toUpperCase(),
-        parent_id: "",
-        parent_spouse_name: "",
-        child_order: "",
-        notes: document.getElementById("p_notes").value.trim().toUpperCase(),
-        photo_url: document.getElementById("photo_url_2").value
-      };
 
       try {
         await fetch(GOOGLE_SCRIPT_URL, {
