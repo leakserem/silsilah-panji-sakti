@@ -859,7 +859,7 @@
                 ${d.y} ${d.x}`;
     }
 
-    function searchMember() {
+function searchMember() {
       if (!d3Hierarchy || !svg || !zoomBehavior) {
         alert("Mohon tunggu, data silsilah sedang dimuat dari server.");
         return;
@@ -871,9 +871,22 @@
       const query = searchInput.value.trim().toUpperCase();
       if (!query) return;
 
+      // 1. BUKA SEMUA CABANG YANG TERTUTUP (EXPAND ALL)
+      // Langkah ini wajib agar D3.js memuat seluruh node tersembunyi ke dalam memori pencarian
+      function expandAll(d) {
+        if (d._children) {
+          d.children = d._children;
+          d._children = null;
+        }
+        if (d.children) {
+          d.children.forEach(expandAll);
+        }
+      }
+      expandAll(d3Hierarchy);
+
       let targetNode = null;
 
-      // Cari node berdasarkan kecocokan nama
+      // 2. Cari node berdasarkan kecocokan nama di seluruh silsilah
       d3Hierarchy.each(d => {
         if (d.data.full_name && String(d.data.full_name).toUpperCase().includes(query)) {
           targetNode = d;
@@ -886,23 +899,13 @@
         return;
       }
 
-      // Otomatis membuka cabang (expand) dari target ke atas (root) jika tertutup
-      let current = targetNode;
-      while (current.parent) {
-        if (current.parent._children) {
-          current.parent.children = current.parent._children;
-          current.parent._children = null;
-        }
-        current = current.parent;
-      }
-
-      // Berikan tanda highlight pada data target
+      // 3. Berikan tanda highlight pada data target
       targetNode.data.isHighlighted = true;
       
-      // PERBAIKAN: Selalu update dari root (d3Hierarchy) agar struktur pohon tergambar utuh
+      // 4. Perbarui tampilan pohon secara keseluruhan
       updateTree(d3Hierarchy);
 
-      // Hitung koordinat dan geser kamera tepat ke posisi target
+      // 5. Hitung koordinat dan geser kamera tepat ke posisi target
       const container = document.getElementById("tree-container");
       if (!container) return;
 
