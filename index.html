@@ -860,11 +860,20 @@
     }
 
     function searchMember() {
-      const query = document.getElementById("search-input").value.trim().toUpperCase();
+      if (!d3Hierarchy || !svg || !zoomBehavior) {
+        alert("Mohon tunggu, data silsilah sedang dimuat dari server.");
+        return;
+      }
+
+      const searchInput = document.getElementById("search-input");
+      if (!searchInput) return;
+
+      const query = searchInput.value.trim().toUpperCase();
       if (!query) return;
 
       let targetNode = null;
 
+      // Cari node berdasarkan kecocokan nama
       d3Hierarchy.each(d => {
         if (d.data.full_name && String(d.data.full_name).toUpperCase().includes(query)) {
           targetNode = d;
@@ -877,6 +886,7 @@
         return;
       }
 
+      // Otomatis membuka cabang (expand) dari target ke atas (root) jika tertutup
       let current = targetNode;
       while (current.parent) {
         if (current.parent._children) {
@@ -886,11 +896,18 @@
         current = current.parent;
       }
 
+      // Berikan tanda highlight pada data target
       targetNode.data.isHighlighted = true;
-      updateTree(targetNode);
+      
+      // PERBAIKAN: Selalu update dari root (d3Hierarchy) agar struktur pohon tergambar utuh
+      updateTree(d3Hierarchy);
 
-      const containerHeight = document.getElementById("tree-container").clientHeight;
-      const containerWidth = document.getElementById("tree-container").clientWidth;
+      // Hitung koordinat dan geser kamera tepat ke posisi target
+      const container = document.getElementById("tree-container");
+      if (!container) return;
+
+      const containerHeight = container.clientHeight;
+      const containerWidth = container.clientWidth;
       
       const scale = 1.1;
       const x = containerWidth / 2 - (targetNode.y * scale);
@@ -901,7 +918,6 @@
         d3.zoomIdentity.translate(x, y).scale(scale)
       );
     }
-
     // PENGIRIMAN FORM 1 (SUDAH DIKUNCI EKSPLISIT BERDASARKAN ID INPUT)
     document.getElementById("family-form").addEventListener("submit", async (e) => {
       e.preventDefault();
