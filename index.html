@@ -4,20 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- Primary Meta Tags -->
   <title>Silsilah Keturunan Ki Gusti Ngurah Panji Sakti</title>
   <meta name="title" content="Silsilah Keturunan Ki Gusti Ngurah Panji Sakti">
   <meta name="description" content="Situs silsilah keluarga interaktif Ki Gusti Ngurah Panji Sakti. Jelajahi garis keturunan, pencarian anggota, dan pengajuan data silsilah keluarga.">
   <meta name="keywords" content="Ki Gusti Ngurah Panji Sakti, Silsilah, Buleleng, Bali, Trah Panji Sakti, Family Tree, Genealogi">
   <meta name="author" content="Keluarga Besar Ki Gusti Ngurah Panji Sakti">
 
-  <!-- Open Graph / Social Media Preview -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://silsilah.web.id/">
-  <meta property="og:title" content="Silsilah Keturunan Ki Gusti Ngurah Panji Sakti">
-  <meta property="og:description" content="Situs silsilah keluarga interaktif Ki Gusti Ngurah Panji Sakti. Jelajahi garis keturunan dan silsilah keluarga secara langsung.">
-
-  <!-- PWA Manifest & iOS Support -->
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#111827">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -27,7 +19,7 @@
   <!-- D3.js Library -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
 
-  <!-- Cropper.js (Library Pemotong Foto Manual) -->
+  <!-- Cropper.js -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
   
@@ -35,7 +27,6 @@
     * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
     body { margin: 0; padding: 15px; background-color: #f8fafc; color: #1e293b; }
     
-    /* Header Container */
     .header-container {
       display: flex;
       flex-direction: column;
@@ -74,7 +65,6 @@
     
     .container { display: flex; flex-direction: column; gap: 20px; max-width: 1400px; margin: 0 auto; }
     
-    /* Tree View Card */
     #tree-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
@@ -82,13 +72,12 @@
       position: relative;
       overflow: hidden;
       box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06);
-      height: 720px;
+      height: 750px;
     }
 
     #tree-container { width: 100%; height: 100%; background-color: #fafafa; cursor: grab; }
     #tree-container:active { cursor: grabbing; }
     
-    /* Toolbar Layout */
     .toolbar {
       position: absolute;
       top: 12px;
@@ -162,7 +151,6 @@
     }
     .ctrl-btn:hover { background: #f1f5f9; color: #2563eb; }
 
-    /* Node Tree Styling */
     .node circle { fill: #2563eb; stroke: #1d4ed8; stroke-width: 2px; cursor: pointer; transition: all 0.3s; }
     .node--collapsed circle { fill: #e11d48; stroke: #be123c; }
     .node image { cursor: pointer; transition: all 0.3s; }
@@ -175,7 +163,6 @@
 
     .link { fill: none; stroke: #cbd5e1; stroke-width: 2px; }
 
-    /* Form Styling */
     #form-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
@@ -262,7 +249,6 @@
     button.submit-btn:hover { background-color: #1d4ed8; }
     .status-msg { margin-top: 12px; text-align: center; font-weight: 600; font-size: 14px; }
 
-    /* Modal Pemotong Foto Cropper.js */
     #cropper-modal {
       display: none;
       position: fixed;
@@ -320,12 +306,10 @@
       font-weight: 600;
     }
 
-    /* Override Cropper Circle Mask */
     .cropper-view-box, .cropper-face {
       border-radius: 50%;
     }
 
-    /* Disclaimer Card */
     .disclaimer-card {
       background-color: #fefce8;
       border: 1px solid #fef08a;
@@ -349,7 +333,6 @@
       text-transform: uppercase;
     }
 
-    /* Responsif Mobile */
     @media (max-width: 640px) {
       body { padding: 8px; }
       #tree-card { height: 55vh; min-height: 420px; }
@@ -371,7 +354,6 @@
   </header>
 
   <div class="container">
-    <!-- Pohon Silsilah -->
     <div id="tree-card">
       <div class="toolbar">
         <div class="search-box">
@@ -390,11 +372,9 @@
       <div id="tree-container"></div>
     </div>
 
-    <!-- FORM CARD DENGAN TAB -->
     <div id="form-card">
       <h3>Pengajuan Data Silsilah</h3>
       
-      <!-- Navigasi Tab Form -->
       <div class="form-tabs">
         <button type="button" class="tab-btn active" id="tab-with-parent" onclick="switchForm('with-parent')">
           1. Tambah Anggota (Ada Orang Tua)
@@ -404,7 +384,6 @@
         </button>
       </div>
 
-      <!-- FORM 1: Dengan Parent ID -->
       <form id="family-form">
         <div class="form-group">
           <label for="generation">1. Generasi ke- (Generation)</label>
@@ -443,7 +422,6 @@
           <textarea id="notes" rows="3" class="uppercase-input" placeholder="CONTOH: DI SUKASADA..."></textarea>
         </div>
 
-        <!-- UPLOAD FOTO FORM 1 DENGAN CROPPER -->
         <div class="form-group">
           <label for="photo_file_1">8. Unggah & Potong Wajah Foto Profil (&lt;10 KB)</label>
           <input type="file" id="photo_file_1" accept="image/*" onchange="openCropper(this, 'preview-1', 'photo_url_1', 'info-1')">
@@ -458,7 +436,6 @@
         <p class="status-msg" id="status-msg-1"></p>
       </form>
 
-      <!-- FORM 2: Tanpa Parent ID -->
       <form id="parent-form" style="display: none;">
         <p style="font-size: 13px; color: #64748b; margin-top: 0; margin-bottom: 15px;">
           ℹ️ Gunakan formulir ini jika Anda ingin mendaftarkan <b>Orang Tua / Leluhur</b> yang namanya <b>belum terdaftar</b> di silsilah (belum memiliki Parent ID).
@@ -484,7 +461,6 @@
           <textarea id="p_notes" rows="3" class="uppercase-input" placeholder="CONTOH: LELUHUR DARI SUKASADA..."></textarea>
         </div>
 
-        <!-- UPLOAD FOTO FORM 2 DENGAN CROPPER -->
         <div class="form-group">
           <label for="photo_file_2">5. Unggah & Potong Wajah Foto Profil (&lt;10 KB)</label>
           <input type="file" id="photo_file_2" accept="image/*" onchange="openCropper(this, 'preview-2', 'photo_url_2', 'info-2')">
@@ -501,7 +477,6 @@
     </div>
   </div>
 
-  <!-- MODAL PEMOTONG FOTO (CROPPER MODAL) -->
   <div id="cropper-modal">
     <div class="cropper-content-box">
       <h4 style="margin: 0; color: #0f172a;">Potong Bagian Wajah</h4>
@@ -516,7 +491,6 @@
     </div>
   </div>
 
-  <!-- Disclaimer Card -->
   <div class="disclaimer-card">
     <strong>⚠️ Disclaimer / Penafian</strong>
     <p style="margin: 0;">
@@ -525,13 +499,12 @@
   </div>
 
   <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwI31IEJsaFdc-4mGs-W2-fwaSlz1ClVqOkYHa7Wl-t1HrWLR3FRLt5RKwQc5Vi3wRM/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5Fd73H8KTrfMo5z2n7VHr_aEfu92qQXcgomoxfCYekGDO-X9XuxFk8RGjzbMP3DP_/exec";
 
     let svg, g, zoomBehavior, rootData, d3Hierarchy;
     let i = 0;
     let rawMembersList = [];
 
-    // Variabel Global Cropper
     let cropper = null;
     let currentInputContext = { previewId: '', hiddenInputId: '', infoId: '' };
 
@@ -554,7 +527,6 @@
       }
     }
 
-    // FUNGSI MEMBUKA MODAL CROPPER
     function openCropper(fileInput, previewImgId, hiddenInputId, infoSpanId) {
       const file = fileInput.files[0];
       if (!file) return;
@@ -585,7 +557,6 @@
       };
     }
 
-    // EKSEKUSI POTONG FOTO & KOMPRESI (<10 KB)
     function applyCrop() {
       if (!cropper) return;
 
@@ -736,12 +707,48 @@
       }
     }
 
+    // 💡 FUNGSI BANTU PEMOTONG TEKS (WORD WRAP CHUNKER)
+    function appendWrappedText(selection, text, maxChars, x, dy, fontSize, fill, fontWeight) {
+      if (!text) return;
+      const words = text.split(' ');
+      let line = [];
+      let isFirstLine = true;
+
+      words.forEach(word => {
+        line.push(word);
+        if (line.join(' ').length > maxChars) {
+          const lineText = line.slice(0, -1).join(' ');
+          if (lineText) {
+            selection.append('tspan')
+              .attr('x', x)
+              .attr('dy', isFirstLine ? dy : '1.25em')
+              .attr('font-size', fontSize)
+              .attr('fill', fill)
+              .attr('font-weight', fontWeight || 'normal')
+              .text(lineText);
+            isFirstLine = false;
+          }
+          line = [word];
+        }
+      });
+
+      if (line.length > 0) {
+        selection.append('tspan')
+          .attr('x', x)
+          .attr('dy', isFirstLine ? dy : '1.25em')
+          .attr('font-size', fontSize)
+          .attr('fill', fill)
+          .attr('font-weight', fontWeight || 'normal')
+          .text(line.join(' '));
+      }
+    }
+
     function updateTree(source) {
-      // 💡 SPACING OTOMATIS & MULTI-LINE TEXT UNTUK MENCEGAH TULISAN MENUMPUK:
-      // STEP_X = 80px (Jarak vertikal antar saudara)
-      // STEP_Y = 480px (Jarak horizontal antar generasi)
-      const STEP_X = 80;
-      const STEP_Y = 480;
+      // SPACING NODE:
+      // STEP_X = 110px (Jarak vertikal antar-saudara ditingkatkan agar teks multi-line muat rapi)
+      // STEP_Y = 460px (Jarak horizontal antar-generasi)
+      const STEP_X = 110;
+      const STEP_Y = 460;
       
       const treeLayout = d3.tree().nodeSize([STEP_X, STEP_Y]);
       const treeData = treeLayout(d3Hierarchy);
@@ -768,7 +775,7 @@
           updateTree(d);
         });
 
-      // Render Foto Profil Lingkaran atau Node Biasa
+      // Render Foto Profil Lingkaran / Circle
       nodeEnter.each(function(d) {
         const gNode = d3.select(this);
         const pUrl = String(d.data.photo_url || "").trim();
@@ -786,43 +793,33 @@
         }
       });
 
-      // RENDER TEKS MULTI-LINE (Mencegah Penumpukan Teks Memanjang)
-      const textGroup = nodeEnter.append('text')
-        .attr('x', 24)
-        .attr('y', 0);
+      // RENDER TEKS DENGAN AUTOMATIC WORD-WRAP (MAX ~35 KARAKTER)
+      nodeEnter.each(function(d) {
+        const gNode = d3.select(this);
+        const textGroup = gNode.append('text').attr('x', 26).attr('y', 0);
 
-      // BARIS 1: NAMA LENGKAP & GELAR (TEBAL & KAPITAL)
-      textGroup.append('tspan')
-        .attr('x', 24)
-        .attr('dy', '-0.6em')
-        .attr('font-weight', '700')
-        .attr('font-size', '13px')
-        .attr('fill', '#0f172a')
-        .text(d => String(d.data.full_name || 'UNNAMED').toUpperCase());
+        // BARIS 1: NAMA LENGKAP & GELAR
+        const nameText = String(d.data.full_name || 'UNNAMED').toUpperCase();
+        appendWrappedText(textGroup, nameText, 35, 26, '-0.8em', '13px', '#0f172a', '700');
 
-      // BARIS 2: GENERASI & ANAK KE
-      textGroup.append('tspan')
-        .attr('x', 24)
-        .attr('dy', '1.25em')
-        .attr('font-size', '11px')
-        .attr('fill', '#475569')
-        .text(d => {
-          const gen = String(d.data.generation || '-').toLowerCase();
-          const childOrd = d.data.child_order ? ` | Anak ke-${d.data.child_order}` : '';
-          return `Gen: ${gen}${childOrd}`;
-        });
+        // BARIS 2: GENERASI & ANAK KE
+        const gen = String(d.data.generation || '-').toLowerCase();
+        const childOrd = d.data.child_order ? ` | Anak ke-${d.data.child_order}` : '';
+        const genText = `Gen: ${gen}${childOrd}`;
+        appendWrappedText(textGroup, genText, 35, 26, '1.25em', '11px', '#475569', '400');
 
-      // BARIS 3: PASANGAN & CATATAN
-      textGroup.append('tspan')
-        .attr('x', 24)
-        .attr('dy', '1.25em')
-        .attr('font-size', '11px')
-        .attr('fill', '#64748b')
-        .text(d => {
-          const spouse = d.data.spouse_name ? `Pasangan: ${String(d.data.spouse_name).toUpperCase()}` : '';
-          const note = d.data.notes ? `${spouse ? ' | ' : ''}${String(d.data.notes).toUpperCase()}` : '';
-          return (spouse || note) ? `${spouse}${note}` : '';
-        });
+        // BARIS 3: PASANGAN (JIKA ADA)
+        if (d.data.spouse_name) {
+          const spouseText = `Pasangan: ${String(d.data.spouse_name).toUpperCase()}`;
+          appendWrappedText(textGroup, spouseText, 35, 26, '1.2em', '11px', '#64748b', '400');
+        }
+
+        // BARIS 4: CATATAN SEJARAH / BIOGRAFI (DIPOTONG KE BARIS BAWAH JIKA PANJANG)
+        if (d.data.notes) {
+          const noteText = String(d.data.notes).toUpperCase();
+          appendWrappedText(textGroup, noteText, 35, 26, '1.2em', '11px', '#64748b', '400');
+        }
+      });
 
       const nodeUpdate = nodeEnter.merge(node);
 
@@ -921,7 +918,6 @@
       svg.transition().duration(400).call(zoomBehavior.transform, d3.zoomIdentity.translate(120, height / 2).scale(0.85));
     }
 
-    // HANDLER SUBMIT FORM 1
     document.getElementById("family-form").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -978,7 +974,6 @@
       }
     });
 
-    // HANDLER SUBMIT FORM 2
     document.getElementById("parent-form").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -1035,7 +1030,6 @@
       }
     });
 
-    // PWA Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
@@ -1044,7 +1038,6 @@
       });
     }
 
-    // Load Data Utama
     loadFamilyData();
   </script>
 </body>
