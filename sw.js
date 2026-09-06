@@ -1,21 +1,21 @@
-const CACHE_NAME = 'silsilah-cache-v1';
+const CACHE_NAME = 'silsilah-cache-v2';
+
+// 💡 HANYA masukkan file yang BENAR-BENAR ADA di repositori GitHub Anda
 const urlsToCache = [
   '/',
   '/index.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/og-image.png'
 ];
 
-// 1. INSTALASI: Menyimpan file utama ke dalam Cache agar website bisa dibuka lebih cepat
+// 1. INSTALASI: Menyimpan file utama ke dalam Cache
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Opened cache');
-        // Gunakan catch agar jika ada file yang belum ada (seperti icon) proses install tidak gagal
-        return cache.addAll(urlsToCache).catch(err => console.log('Beberapa aset gagal di-cache:', err));
+        console.log('Cache berhasil dibuka');
+        return cache.addAll(urlsToCache);
       })
+      .catch(err => console.error('Gagal menyimpan cache, periksa nama file:', err))
   );
 });
 
@@ -35,10 +35,8 @@ self.addEventListener('activate', event => {
 });
 
 // 3. PENGAMBILAN (FETCH): Strategi "Network First"
-// Selalu usahakan ambil data langsung dari internet agar data Silsilah selalu UPDATE. 
-// Jika internet putus (offline), baru tampilkan versi Cache.
 self.addEventListener('fetch', event => {
-  // Abaikan request dari Apps Script (Google) agar tidak mengganggu sistem form/database
+  // Abaikan request ke Apps Script agar form tetap berjalan normal
   if (event.request.url.includes('script.google.com')) return;
 
   event.respondWith(
