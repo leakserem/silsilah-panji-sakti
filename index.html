@@ -354,23 +354,20 @@
     </p>
   </header>
 
-  <div class="container">
-    <div id="tree-card">
-      <div class="toolbar">
-        <div class="search-box">
-          <input type="text" id="search-input" list="members-list" placeholder="🔍 Cari Nama Anggota..." onkeydown="if(event.key==='Enter') searchMember()">
-          <datalist id="members-list"></datalist>
-          <button onclick="searchMember()">Cari</button>
+<div class="container">
+      <div id="tree-card">
+        <div class="toolbar">
+          <div class="search-box">
+            <input type="text" id="search-input" list="members-list" placeholder="🔍 Cari Nama Anggota..." onkeydown="if(event.key==='Enter') searchMember()">
+            <datalist id="members-list"></datalist>
+            <button onclick="searchMember()">Cari</button>
+            <button onclick="resetSearch()" style="background: #64748b;" title="Reset Pencarian">Reset</button>
+            <button class="ctrl-btn" onclick="resetZoom()" style="background: #334155; color: white;" title="Reset Posisi Tampilan Silsilah">Reset View</button>
+          </div>
         </div>
 
-        <div class="controls-bar">
-          <button class="ctrl-btn" onclick="zoomIn()">+</button>
-          <button class="ctrl-btn" onclick="zoomOut()">-</button>
-          <button class="ctrl-btn" onclick="resetZoom()">Reset View</button>
-        </div>
+        <div id="tree-container"></div>
       </div>
-
-      <div id="tree-container"></div>
     </div>
 
     <div id="form-card">
