@@ -103,7 +103,7 @@
       border: 1px solid #cbd5e1;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
       width: 100%;
-      max-width: 400px;
+      max-width: 520px;
     }
 
     .search-box input {
@@ -128,29 +128,15 @@
     }
     .search-box button:hover { background: #1d4ed8; }
 
-    .controls-bar {
-      pointer-events: auto;
-      display: flex;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(4px);
-      padding: 6px;
-      border-radius: 10px;
-      border: 1px solid #cbd5e1;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    }
-
     .ctrl-btn {
-      background: #ffffff; 
-      border: 1px solid #cbd5e1;
-      padding: 8px 14px; 
-      font-weight: bold; 
-      border-radius: 6px;
+      border: none;
+      padding: 10px 14px; 
+      font-weight: 600; 
+      border-radius: 8px;
       cursor: pointer; 
-      color: #334155; 
       font-size: 14px;
+      transition: background 0.2s;
     }
-    .ctrl-btn:hover { background: #f1f5f9; color: #2563eb; }
 
     .node circle { fill: #2563eb; stroke: #1d4ed8; stroke-width: 2px; cursor: pointer; transition: all 0.3s; }
     .node--collapsed circle { fill: #e11d48; stroke: #be123c; }
@@ -338,7 +324,7 @@
       body { padding: 8px; }
       #tree-card { height: 55vh; min-height: 420px; }
       .toolbar { flex-direction: column; align-items: stretch; }
-      .search-box { max-width: 100%; }
+      .search-box { max-width: 100%; flex-wrap: wrap; }
       #form-card { padding: 16px; }
       .form-tabs { flex-direction: column; }
     }
@@ -354,20 +340,19 @@
     </p>
   </header>
 
-<div class="container">
-      <div id="tree-card">
-        <div class="toolbar">
-          <div class="search-box">
-            <input type="text" id="search-input" list="members-list" placeholder="🔍 Cari Nama Anggota..." onkeydown="if(event.key==='Enter') searchMember()">
-            <datalist id="members-list"></datalist>
-            <button onclick="searchMember()">Cari</button>
-            <button onclick="resetSearch()" style="background: #64748b;" title="Reset Pencarian">Reset</button>
-            <button class="ctrl-btn" onclick="resetZoom()" style="background: #334155; color: white;" title="Reset Posisi Tampilan Silsilah">Reset View</button>
-          </div>
+  <div class="container">
+    <div id="tree-card">
+      <div class="toolbar">
+        <div class="search-box">
+          <input type="text" id="search-input" list="members-list" placeholder="🔍 Cari Nama Anggota..." onkeydown="if(event.key==='Enter') searchMember()">
+          <datalist id="members-list"></datalist>
+          <button onclick="searchMember()">Cari</button>
+          <button onclick="resetSearch()" style="background: #64748b;" title="Reset Pencarian">Reset</button>
+          <button class="ctrl-btn" onclick="resetZoom()" style="background: #334155; color: white;" title="Reset Posisi Tampilan Silsilah">Reset View</button>
         </div>
-
-        <div id="tree-container"></div>
       </div>
+
+      <div id="tree-container"></div>
     </div>
 
     <div id="form-card">
@@ -856,7 +841,8 @@
                 ${d.y} ${d.x}`;
     }
 
-function searchMember() {
+    // FUNGSI PENCARIAN
+    function searchMember() {
       if (!d3Hierarchy || !svg || !zoomBehavior) {
         alert("Mohon tunggu, data silsilah sedang dimuat dari server.");
         return;
@@ -869,7 +855,6 @@ function searchMember() {
       if (!query) return;
 
       // 1. BUKA SEMUA CABANG YANG TERTUTUP (EXPAND ALL)
-      // Langkah ini wajib agar D3.js memuat seluruh node tersembunyi ke dalam memori pencarian
       function expandAll(d) {
         if (d._children) {
           d.children = d._children;
@@ -918,7 +903,40 @@ function searchMember() {
         d3.zoomIdentity.translate(x, y).scale(scale)
       );
     }
-    // PENGIRIMAN FORM 1 (SUDAH DIKUNCI EKSPLISIT BERDASARKAN ID INPUT)
+
+    // FUNGSI RESET TAMPILAN KAMERA (RESET VIEW)
+    function resetZoom() {
+      const container = document.getElementById("tree-container");
+      if (!container || !svg || !zoomBehavior) return;
+      
+      const height = container.clientHeight;
+      
+      svg.transition().duration(400).call(
+        zoomBehavior.transform, 
+        d3.zoomIdentity.translate(120, height / 2).scale(0.85)
+      );
+    }
+
+    // FUNGSI RESET PENCARIAN
+    function resetSearch() {
+      const searchInput = document.getElementById("search-input");
+      if (searchInput) searchInput.value = "";
+
+      if (!d3Hierarchy) return;
+
+      d3Hierarchy.each(d => {
+        delete d.data.isHighlighted;
+      });
+
+      if (d3Hierarchy.children) {
+        d3Hierarchy.children.forEach(collapseDeep);
+      }
+
+      updateTree(d3Hierarchy);
+      resetZoom();
+    }
+
+    // PENGIRIMAN FORM 1 (ANGGOTA BERSAMA ORANG TUA)
     document.getElementById("family-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const statusMsg = document.getElementById("status-msg-1");
@@ -970,7 +988,7 @@ function searchMember() {
       }
     });
 
-    // PENGIRIMAN FORM 2
+    // PENGIRIMAN FORM 2 (LELUHUR / TANPA PARENT ID)
     document.getElementById("parent-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const statusMsg = document.getElementById("status-msg-2");
@@ -1022,6 +1040,7 @@ function searchMember() {
       }
     });
 
+    // SERVICE WORKER REGISTRATION
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
